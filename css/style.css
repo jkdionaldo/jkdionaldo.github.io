@@ -335,7 +335,7 @@ h5 {
 }
 
 /* For iPad Pro */
-@media (min-width: 1024px) and (max-width: 1180px) {
+@media (min-width: 1024px) and (max-width: 1366px) {
   
   #ratings {
     margin: 0;
