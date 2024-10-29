@@ -601,11 +601,7 @@ h5 {
 
 @media (max-width: 1366px) {
     #email{
-      width: 350px;
-    }
-    
-    #phone{
-        padding-left: 10px;
+      width: 300px;
     }
 }
 
