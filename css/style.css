@@ -599,12 +599,22 @@ h5 {
   margin-left: 65px;
 }
 
+@media (max-width: 1366px) {
+    #email{
+      width: 150%;
+    }
+    
+    #phone{
+        padding-left: 10px;
+    }
+}
 
 /* Media query for tablets */
 @media (max-width: 1366px) {
   #contact .media {
     display: flex;  
-    margin-left: 20px;                  
+    margin-left: 20px;
+                      
     /* Adjusted for tablet view */
   }
   
