@@ -305,7 +305,7 @@ h5 {
 
 @media (max-width: 768px) {
   #ratings {
-    margin-top: -120px;
+    margin-top: -30%;
   }
 
   #rating2 {
@@ -318,24 +318,43 @@ h5 {
   }
 }
 
-@media (max-width: 1024px) {
+/* For iPads, specific adjustments */
+@media (min-width: 820px) and (max-width: 1023px) {
   #ratings {
     margin: 0;
     margin-top: -35%;
   }
-
+  
+  #rating2 {
+    margin-top: -30px;
+  }
+  
   #section2 {
-    margin-top: -50px;
+    margin-top: -50px; /* Adjusts only for this range */
+  }
+}
+
+/* For iPad Pro */
+@media (min-width: 1024px) and (max-width: 1180px) {
+  
+  #ratings {
+    margin: 0;
+    margin-top: -35%;
+  }
+  
+  #section2 {
+    top: -1px; /* only for iPad Pro */
     margin-bottom: -50px;
   }
 }
 
-@media (max-width: 1200px) {
-  #ratings {
-      margin: 0;
-      margin-top: -35%;
-    }
+/* Further adjustments for larger screens */
+@media (min-width: 1181px) and (max-width: 1366px) {
+  #section2 {
+    margin-top: 0; /* Adjust as needed for larger screens */
+  }
 }
+
 
 /* Progress bar */
 #about .progress {
@@ -541,6 +560,27 @@ h5 {
 
 }
 
+/* CSS for iPad Air (Portrait) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    #portfolio .row {
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        align-items: center; /* Center items horizontally */
+    }
+    
+    .portfolio-item {
+        width: 100%; /* Take full width on iPad Air */
+        max-width: 100%; /* Ensure no overflow */
+        margin-bottom: 20px; /* Add spacing between items */
+    }
+
+    .portfolio-thumb img {
+        width: 100%; /* Ensure images scale to fit container */
+        height: auto; /* Maintain image aspect ratio */
+    }
+}
+
+
 /* end portfolio */
 
 /* start contact */
@@ -561,12 +601,17 @@ h5 {
 
 
 /* Media query for tablets */
-@media (max-width: 992px) {
+@media (max-width: 1366px) {
   #contact .media {
-    display: flex;
-    margin-left: 30px;
+    display: flex;  
+    margin-left: 20px;                  
     /* Adjusted for tablet view */
   }
+  
+ #contact .media .media-object {
+    margin-right: -15px;
+  }
+   
 }
 
 /* Media query for mobile devices */
@@ -577,8 +622,8 @@ h5 {
     align-items: center;
     flex-direction: row;
     /* Remove left margin on smaller screens */
-  }
-
+  }  
+  
   /* Adjust spacing between media-object and media-body */
   #contact .media .media-object {
     margin-right: -20px;
