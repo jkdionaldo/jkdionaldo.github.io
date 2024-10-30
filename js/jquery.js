@@ -1777,10 +1777,6 @@
         isDefaultPrevented: ot,
         isPropagationStopped: ot,
         isImmediatePropagationStopped: ot,
-        preventDefault: function() {
-            var e = this.originalEvent;
-           
-        },
         stopPropagation: function() {
             var e = this.originalEvent;
             this.isPropagationStopped = it, e && (e.stopPropagation && e.stopPropagation(), e.cancelBubble = !0)
