@@ -1781,9 +1781,6 @@
     		try {
        			var e = this.originalEvent;
        			this.isDefaultPrevented = function() { return true; };
-        		if (e) {
-           	 		e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-        		}
   		  } catch (error) {
         console.error("Error in preventDefault function:", error);
  	   }
