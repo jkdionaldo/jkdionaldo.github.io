@@ -1778,12 +1778,16 @@
         isPropagationStopped: ot,
         isImmediatePropagationStopped: ot,
         preventDefault: function() {
-    			var e = this.originalEvent;
-   				this.isDefaultPrevented = function() { return true; };
-   				if (e) {
-        		e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-    		}
-		},		
+    		try {
+       			var e = this.originalEvent;
+       			this.isDefaultPrevented = function() { return true; };
+        		if (e) {
+           	 		e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+        		}
+  		  } catch (error) {
+        console.error("Error in preventDefault function:", error);
+ 	   }
+	},		
         stopPropagation: function() {
             var e = this.originalEvent;
             this.isPropagationStopped = it, e && (e.stopPropagation && e.stopPropagation(), e.cancelBubble = !0)
