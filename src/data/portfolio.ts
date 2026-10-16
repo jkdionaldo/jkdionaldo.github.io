@@ -22,7 +22,7 @@ export const portfolio = {
   location: "Jumeirah Lake Towers, Al Thanyah 5, Dubai, United Arab Emirates",
   photo: "/images/main_picture/kevin.JPG",
   aboutPhoto: "/images/main_picture/me.jpg",
-  cv: "/cv/Kevin_Dionaldo_CV%20.pdf",
+  cv: "/cv/CV.pdf",
   nav: [
     { label: "About", href: "#about" },
     { label: "Work", href: "#work" },
@@ -134,7 +134,6 @@ export const portfolio = {
     {
       title: "Video Editor",
       date: "Feb 2026 — Aug 2026",
-      detail: "Scale on Socials",
       points: [
         "Create short-form and UGC/montage content for Instagram Reels, TikTok, and YouTube Shorts.",
         "Manage content for RK Trends and Spice Grill, adapting visuals and messaging to each audience.",

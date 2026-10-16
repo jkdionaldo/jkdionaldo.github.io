@@ -788,8 +788,7 @@ export default function App() {
               <a
                 className="download-link"
                 href={portfolio.cv}
-                target="_blank"
-                rel="noreferrer"
+                download="Kevin_Dionaldo_CV.pdf"
               >
                 <Download size={15} /> Download CV
               </a>
