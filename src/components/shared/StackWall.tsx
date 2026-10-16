@@ -160,9 +160,9 @@ export function StackWall() {
           playbackRate < 0 &&
           typeof duration === "number" &&
           currentTime !== null &&
-          currentTime <= 0
+          currentTime <= 1
         ) {
-          animation.currentTime = duration;
+          animation.currentTime = duration - 1;
         }
       });
       if (playbackRate < 0) frame = requestAnimationFrame(loopReverse);
@@ -245,7 +245,7 @@ export function StackWall() {
       >
         <div className="stack-blueprint" aria-hidden="true" />
         {filter === "All" && !reducedMotion ? (
-          <div className="stack-marquee-wall" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+          <div className="stack-marquee-wall">
             {rows.map((row, rowIndex) => (
               <div className={`stack-marquee stack-marquee-${rowIndex + 1}`} key={rowIndex}>
                 {[...row, ...row].map((item, index) => (
