@@ -20,12 +20,13 @@ Tokens are defined in [`src/styles/globals.css`](./src/styles/globals.css). The 
 ## HCI and accessibility
 
 - **Jakob / recognition:** familiar anchor navigation, standard form fields, and a command palette for quick navigation.
-- **Hick / focus:** four nav items and one primary CTA keep decisions small.
+- **Hick / focus:** four nav items and one primary CTA keep decisions small; the stack wall uses six filter options maximum.
 - **Fitts / reach:** buttons and icon controls are at least 44px; the mobile sheet puts actions in a thumb-friendly vertical list.
 - **Gestalt / Miller:** repeated card anatomy, proximity, and short grouped lists chunk information.
 - **Nielsen:** scroll-spy indicates location, inline validation prevents errors, and the mail handoff has immediate feedback.
 - **Doherty threshold:** interactions use 150–300ms transitions; form feedback is immediate.
 - **Accessibility:** semantic sections/headings, visible focus rings, AA-conscious contrast, keyboard palette controls, explicit image dimensions, and `prefers-reduced-motion` support are included.
+- **Tech stack wall:** uniform 96px desktop / 72px mobile tiles use Gestalt similarity and proximity; preferred tools use the Von Restorff effect through accent stars and borders; all tiles meet Fitts's 44px touch target. The live count and pause control expose system status and satisfy WCAG 2.2.2. Filters persist in `?stack=` for shareable state, and reduced motion switches the marquee to a static grid. Monogram fallbacks are used for SQL, Visual Studio Code, Windows, PicoCTF, Adobe Premiere Pro, Adobe Photoshop, CapCut, Microsoft Office apps, Monday.com, and ChatGPT.
 
 ## Before / after and TODOs
 
@@ -42,7 +43,7 @@ GodUI is the motion language for the replacement pass. The implementation follow
 - Header: resizes from 72px to 58px after scroll and exposes the Cmd/Ctrl+K command palette.
 - Hero: the existing portrait remains the performance-safe dither/duotone layer; the blueprint grid is intentionally CSS-only and very low opacity. The title enters once and the portrait scan/breathing effect is the only continuous hero gesture.
 - Work: the niche control uses a shared-layout fade/translate transition. Cards use a restrained spotlight beam and open a morphing case-study dialog. Security filtering correctly shows an explicit TODO state because no public security case study is currently verified.
-- Expertise: GodUI animated SVG icons are sourced from `@svg-animated-icons/react`; the skills area uses three concrete capability groups (Development, Systems & Data, Security Practice) instead of an abstract diagram.
+- Stack: the Expertise section now uses a data-driven GodUI wall with self-hosted Simple Icons, documented monogram fallbacks, a slow three-row marquee, pause control, reduced-motion grid, URL-persisted filters, live counts, and keyboard-operable filter tabs.
 - Timeline: the experience line draws once. Contact keeps the terminal cue and standard accessible form.
 
 No canvas, video, fluid cursor, confetti, or looping decorative effects were added. The requested ASCII Dither, Scroll Stack, and Terminal packages were deliberately represented with CSS/static equivalents where the repository has no verified GodUI implementation, avoiding a performance regression or invented dependency. `prefers-reduced-motion` disables the scan, beam, spotlight, and timeline motion.

@@ -33,6 +33,7 @@ import {
 import { useForm } from "react-hook-form";
 import { toast, Toaster } from "sonner";
 import { portfolio } from "@/data/portfolio";
+import { StackWall } from "@/components/shared/StackWall";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useTheme } from "@/hooks/useTheme";
 import "@/styles/globals.css";
@@ -483,36 +484,6 @@ function CaseDialog({
   );
 }
 
-function SkillsOverview() {
-  return (
-    <div className="skills-overview">
-      <div>
-        <p className="mono">DEVELOPMENT</p>
-        <strong>React · JavaScript · HTML/CSS · Bootstrap</strong>
-        <span>
-          Responsive interfaces, front-end systems, and full-stack delivery.
-        </span>
-      </div>
-      <div>
-        <p className="mono">SYSTEMS & DATA</p>
-        <strong>Laravel · PostgreSQL · Supabase · SQL · Git</strong>
-        <span>
-          Backends, data workflows, authentication, and maintainable project
-          structure.
-        </span>
-      </div>
-      <div>
-        <p className="mono">SECURITY PRACTICE</p>
-        <strong>Linux · Kali Linux · CTF training · Secure coding</strong>
-        <span>
-          Security fundamentals informed by hands-on learning and competition
-          experience.
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [niche, setNiche] = useState<Niche>("all");
@@ -638,11 +609,11 @@ export default function App() {
         <section id="expertise" className="section section-tinted">
           <div className="container-shell">
             <SectionHeading
-              index="02 / Expertise"
-              title="Useful capability, without the jargon."
+              index="02 / Stack"
+              title="Tools I build, secure, and ship with."
             >
-              The right level of engineering for a product that needs to ship,
-              stay understandable, and hold up under scrutiny.
+              A practical toolkit across interfaces, data, delivery, creative
+              work, and AI-assisted workflows.
             </SectionHeading>
             <div className="expertise-grid">
               {portfolio.services.map((service, index) => {
@@ -662,7 +633,7 @@ export default function App() {
                 );
               })}
             </div>
-            <SkillsOverview />
+            <StackWall />
           </div>
         </section>
         <section id="about" className="section">
