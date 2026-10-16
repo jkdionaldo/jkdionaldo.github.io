@@ -142,35 +142,25 @@ export function StackWall() {
   useEffect(() => {
     const node = wallRef.current;
     if (!node) return;
-    const animations = Array.from(
-      node.querySelectorAll<HTMLElement>(".stack-marquee"),
-    ).flatMap((marquee) => marquee.getAnimations());
-    animations.forEach((animation) => {
-      animation.playbackRate = playbackRate;
-    });
-    let frame = 0;
-    const loopReverse = () => {
-      animations.forEach((animation) => {
-        const duration = animation.effect?.getComputedTiming().duration;
-        const currentTime =
-          typeof animation.currentTime === "number"
-            ? animation.currentTime
-            : null;
-        if (
-          playbackRate < 0 &&
-          typeof duration === "number" &&
-          currentTime !== null &&
-          currentTime <= 1
-        ) {
-          animation.currentTime = duration - 1;
+    node.querySelectorAll<HTMLElement>(".stack-marquee").forEach((marquee) => {
+      marquee.getAnimations().forEach((animation) => {
+        const effect = animation.effect;
+        const duration = effect?.getComputedTiming().duration;
+        const currentTime = animation.currentTime;
+        if (!effect || typeof duration !== "number" || typeof currentTime !== "number") return;
+
+        const phase = currentTime % duration;
+        const baseReverse = marquee.classList.contains("stack-marquee-2");
+        const shouldReverse = baseReverse !== (playbackRate < 0);
+        const currentReverse = effect.getComputedTiming().direction === "reverse";
+
+        if (shouldReverse !== currentReverse) {
+          animation.currentTime = phase === 0 ? 0 : duration - phase;
+          effect.updateTiming({ direction: shouldReverse ? "reverse" : "normal" });
         }
+        animation.playbackRate = Math.abs(playbackRate);
       });
-      if (playbackRate < 0) frame = requestAnimationFrame(loopReverse);
-    };
-    if (playbackRate < 0) frame = requestAnimationFrame(loopReverse);
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-    };
+    });
   }, [playbackRate]);
 
   const visible = useMemo(
@@ -245,7 +235,7 @@ export function StackWall() {
       >
         <div className="stack-blueprint" aria-hidden="true" />
         {filter === "All" && !reducedMotion ? (
-          <div className="stack-marquee-wall">
+          <div className="stack-marquee-wall" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
             {rows.map((row, rowIndex) => (
               <div className={`stack-marquee stack-marquee-${rowIndex + 1}`} key={rowIndex}>
                 {[...row, ...row].map((item, index) => (

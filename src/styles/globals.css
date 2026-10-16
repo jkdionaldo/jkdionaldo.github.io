@@ -1507,6 +1507,7 @@ label > span {
   }
   .stack-wall[data-paused="true"] .stack-marquee,
   .stack-wall:hover .stack-marquee,
+  .stack-wall:hover .stack-marquee,
   .stack-wall:focus-within .stack-marquee {
     animation-play-state: paused;
   }
