@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { FastForward, Pause, Play, Rewind } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   stack,
@@ -73,7 +74,7 @@ function StackTile({
       tabIndex={decorative ? -1 : 0}
       aria-label={`${item.name}, ${item.category}${item.preferred ? ", preferred" : ""}`}
       title={`${item.name} — ${item.category}${item.preferred ? " · Preferred" : ""}`}
-      layout
+      layout={false}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.018, 0.7), ease: "easeOut" }}
@@ -93,6 +94,7 @@ export function StackWall() {
   const wallRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<StackFilter>("All");
   const [paused, setPaused] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [inView, setInView] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -136,6 +138,16 @@ export function StackWall() {
       if (frame) cancelAnimationFrame(frame);
     };
   }, [reducedMotion]);
+
+  useEffect(() => {
+    const node = wallRef.current;
+    if (!node) return;
+    node.querySelectorAll<HTMLElement>(".stack-marquee").forEach((marquee) => {
+      marquee.getAnimations().forEach((animation) => {
+        animation.playbackRate = playbackRate;
+      });
+    });
+  }, [playbackRate]);
 
   const visible = useMemo(
     () =>
@@ -227,8 +239,48 @@ export function StackWall() {
         )}
       </div>
       <div className="stack-controls">
-        <button type="button" className="mono stack-pause" onClick={() => setPaused((value) => !value)}>
-          {paused ? "Resume motion" : "Pause motion"}
+        <button
+          type="button"
+          className={`stack-control-icon ${playbackRate < 0 ? "is-active" : ""}`}
+          onClick={() =>
+            setPlaybackRate((value) =>
+              value === -1 ? -2 : value === -2 ? 1 : -1,
+            )
+          }
+          aria-label={
+            playbackRate === -1
+              ? "Speed up reverse motion"
+              : playbackRate === -2
+                ? "Use normal stack speed"
+                : "Reverse stack motion"
+          }
+          title={
+            playbackRate === -1
+              ? "Faster reverse"
+              : playbackRate === -2
+                ? "Normal speed"
+                : "Reverse"
+          }
+        >
+          <Rewind size={15} />
+        </button>
+        <button
+          type="button"
+          className="stack-control-icon"
+          onClick={() => setPaused((value) => !value)}
+          aria-label={paused ? "Resume stack motion" : "Pause stack motion"}
+          title={paused ? "Resume motion" : "Pause motion"}
+        >
+          {paused ? <Play size={15} /> : <Pause size={15} />}
+        </button>
+        <button
+          type="button"
+          className={`stack-control-icon ${playbackRate === 2 ? "is-active" : ""}`}
+          onClick={() => setPlaybackRate((value) => value === 2 ? 1 : 2)}
+          aria-label={playbackRate === 2 ? "Use normal stack speed" : "Fast forward stack motion"}
+          title={playbackRate === 2 ? "Normal speed" : "Fast forward"}
+        >
+          <FastForward size={15} />
         </button>
         <p className="stack-screen-reader">
           {stack.map((item) => `${item.name}${item.preferred ? " (preferred)" : ""}`).join(", ")}

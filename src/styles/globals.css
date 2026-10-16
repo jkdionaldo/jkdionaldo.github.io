@@ -1661,16 +1661,29 @@ label > span {
     justify-content: flex-start;
     margin-top: 16px;
   }
-  .stack-pause {
+  .stack-control-icon {
+    display: inline-flex;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
     min-height: 44px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
     background: transparent;
-    padding: 0 12px;
+    padding: 0;
+    color: var(--muted);
+    transition: color 180ms ease-out, transform 180ms ease-out;
   }
-  .stack-pause:hover {
-    border-color: var(--accent);
+  .stack-control-icon:hover,
+  .stack-control-icon:focus-visible,
+  .stack-control-icon.is-active {
     color: var(--foreground);
+    transform: translateY(-1px);
+  }
+  .stack-control-icon:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
   }
   .stack-screen-reader {
     position: absolute;
