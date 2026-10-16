@@ -139,7 +139,7 @@ export function StackWall() {
   };
 
   return (
-    <div className="stack-wall-wrap" ref={wallRef}>
+    <div className="stack-wall-wrap">
       <div className="stack-header-row">
         <p className="mono stack-kicker">Tools / Stack</p>
         <p className="mono stack-legend">★ Preferred</p>
@@ -176,7 +176,11 @@ export function StackWall() {
           </button>
         ))}
       </div>
-      <div className="stack-wall" data-paused={paused || !inView || reducedMotion}>
+      <div
+        className="stack-wall"
+        ref={wallRef}
+        data-paused={paused || !inView || reducedMotion}
+      >
         <div className="stack-blueprint" aria-hidden="true" />
         {filter === "All" && !reducedMotion ? (
           <div className="stack-marquee-wall" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
