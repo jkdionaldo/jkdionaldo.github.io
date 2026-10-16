@@ -364,7 +364,7 @@ function Hero() {
           transition={{ duration: 0.45 }}
         >
           <p className="mono status-line">
-            <span>●</span> Available for Work / Freelance / Collaboration
+            <span>●</span> Available for Work
           </p>
           <p className="mono hero-label">Jan Kevin B. Dionaldo / Developer</p>
           <h1 className="hero-title">Security-minded software engineer.</h1>
