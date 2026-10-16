@@ -475,9 +475,9 @@ function CaseDialog({
             <dd>{project.description}</dd>
           </div>
         </dl>
-        <p className="mono todo-note">
+        {/* <p className="mono todo-note">
           TODO / Add verified metrics and live links.
-        </p>
+        </p> */}
       </motion.div>
     </div>
   );
@@ -619,10 +619,10 @@ export default function App() {
                     Security work is documented in experience and competition
                     proof.
                   </strong>
-                  <p className="mono">
+                  {/* <p className="mono">
                     TODO / Add a public cybersecurity case study when disclosure
                     permits.
-                  </p>
+                  </p> */}
                 </div>
               )}
             </div>
