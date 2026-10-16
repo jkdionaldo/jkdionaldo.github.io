@@ -142,11 +142,35 @@ export function StackWall() {
   useEffect(() => {
     const node = wallRef.current;
     if (!node) return;
-    node.querySelectorAll<HTMLElement>(".stack-marquee").forEach((marquee) => {
-      marquee.getAnimations().forEach((animation) => {
-        animation.playbackRate = playbackRate;
-      });
+    const animations = Array.from(
+      node.querySelectorAll<HTMLElement>(".stack-marquee"),
+    ).flatMap((marquee) => marquee.getAnimations());
+    animations.forEach((animation) => {
+      animation.playbackRate = playbackRate;
     });
+    let frame = 0;
+    const loopReverse = () => {
+      animations.forEach((animation) => {
+        const duration = animation.effect?.getComputedTiming().duration;
+        const currentTime =
+          typeof animation.currentTime === "number"
+            ? animation.currentTime
+            : null;
+        if (
+          playbackRate < 0 &&
+          typeof duration === "number" &&
+          currentTime !== null &&
+          currentTime <= 0
+        ) {
+          animation.currentTime = duration;
+        }
+      });
+      if (playbackRate < 0) frame = requestAnimationFrame(loopReverse);
+    };
+    if (playbackRate < 0) frame = requestAnimationFrame(loopReverse);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [playbackRate]);
 
   const visible = useMemo(
