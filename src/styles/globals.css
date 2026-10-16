@@ -813,6 +813,7 @@ label > span {
     position: fixed;
     inset: 0;
     display: block;
+    height: 100dvh;
     overflow-y: auto;
     background: var(--background);
     padding: 20px 24px;
