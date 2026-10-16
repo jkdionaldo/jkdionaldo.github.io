@@ -29,7 +29,12 @@ Generated primitives belong in `src/components/ui/`. Shared layout and portfolio
 
 ## Deploy
 
-The app is a static Vite build and can deploy to Vercel or Netlify without a server:
+The app is a static Vite build. GitHub Pages deploys automatically from `main`
+through [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml).
+In the repository settings, set **Pages > Build and deployment > Source** to
+**GitHub Actions**.
+
+It can also deploy to Vercel or Netlify without a server:
 
 1. Import the repository.
 2. Use `npm run build` as the build command.
