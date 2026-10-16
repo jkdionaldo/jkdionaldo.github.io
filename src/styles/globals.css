@@ -229,7 +229,59 @@ button {
   font-size: 12px;
 }
 .status-line span {
-  color: var(--accent);
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  color: transparent;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.status-line span::before,
+.status-line span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.status-line span::before {
+  background: var(--accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent);
+  animation: status-pulse 2.4s ease-out infinite;
+}
+.status-line span::after {
+  border: 1px solid color-mix(in srgb, var(--accent) 68%, transparent);
+  animation: status-ring 2.4s ease-out infinite;
+}
+@keyframes status-pulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.72;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+    box-shadow: 0 0 12px 4px color-mix(in srgb, var(--accent) 34%, transparent);
+  }
+}
+@keyframes status-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  80% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
 }
 .hero-label {
   margin-top: 26px;
