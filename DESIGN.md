@@ -98,3 +98,9 @@ data (for example, `interactive: "planner"`); never render a project-specific
 demo for every project by default. Add the block inside the relevant
 case-study section, keep it readable without motion, and keep the data field
 typed as a finite set of supported interactive variants.
+
+Project thumbnails use the shared `ProjectThumbnail` component. It keeps every
+frame at 16:10, applies a muted theme treatment at rest, and reveals the
+source image or preview video on hover, keyboard focus, or touch viewport
+entry. Add a `focus` object-position to a project only when its source image
+needs a different crop; otherwise it defaults to `top center`.

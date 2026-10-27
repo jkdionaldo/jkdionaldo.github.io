@@ -433,33 +433,76 @@ button {
   border-bottom: 1px solid var(--border);
   padding-block: 28px;
 }
-.work-image {
+.project-thumbnail {
   position: relative;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   background: var(--surface-tinted);
 }
-.work-image img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1.35;
-  object-fit: cover;
-  transition: transform 250ms ease;
-}
-.work-image video {
-  position: absolute;
-  inset: 0;
+.project-thumbnail-image,
+.project-thumbnail-video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 180ms ease;
+  filter: grayscale(70%) saturate(0.72) brightness(0.95) contrast(1.02);
+  opacity: 0.94;
+  transform: scale(1);
+  transition:
+    filter 350ms ease-out,
+    opacity 350ms ease-out,
+    transform 350ms ease-out;
 }
-.work-image.is-video-active video {
+.project-thumbnail-video {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.project-thumbnail-tint,
+.project-thumbnail-gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease-out;
+}
+.project-thumbnail-tint {
+  background: var(--accent);
+  mix-blend-mode: color;
+  opacity: 0.16;
+}
+.project-thumbnail-gradient {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--surface) 88%, transparent),
+    transparent 42%
+  );
+  opacity: 0.55;
+}
+.dark .project-thumbnail-image,
+.dark .project-thumbnail-video {
+  filter: grayscale(85%) saturate(0.65) brightness(0.85) contrast(1.05);
+  opacity: 0.9;
+}
+.dark .project-thumbnail-gradient {
+  opacity: 0.8;
+}
+.project-thumbnail.is-revealed {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+.project-thumbnail.is-revealed .project-thumbnail-image,
+.project-thumbnail.is-revealed .project-thumbnail-video {
+  filter: none;
+  opacity: 1;
+  transform: scale(1.02);
+}
+.project-thumbnail.is-revealed .project-thumbnail-video {
   opacity: 1;
 }
-.work-card:hover .work-image img {
-  transform: scale(1.03);
+.project-thumbnail.is-revealed .project-thumbnail-tint,
+.project-thumbnail.is-revealed .project-thumbnail-gradient {
+  opacity: 0;
 }
 .work-arrow {
   position: absolute;
@@ -478,10 +521,48 @@ button {
     opacity 180ms ease,
     transform 180ms ease;
 }
-.work-card:hover .work-arrow,
-.work-card:focus-visible .work-arrow {
+.work-card:focus-within .project-thumbnail,
+.work-card:hover .project-thumbnail {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+.work-card:focus-within .project-thumbnail-image,
+.work-card:focus-within .project-thumbnail-video,
+.work-card:hover .project-thumbnail-image {
+  filter: none;
+  opacity: 1;
+  transform: scale(1.02);
+}
+.work-card:hover .project-thumbnail-video {
+  filter: none;
+  opacity: 1;
+  transform: scale(1.02);
+}
+.work-card:focus-within .project-thumbnail-tint,
+.work-card:hover .project-thumbnail-tint,
+.work-card:focus-within .project-thumbnail-gradient,
+.work-card:hover .project-thumbnail-gradient {
+  opacity: 0;
+}
+.work-card:focus-within .work-arrow,
+.work-card:hover .work-arrow {
   opacity: 1;
   transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-thumbnail-image,
+  .project-thumbnail-video,
+  .project-thumbnail-tint,
+  .project-thumbnail-gradient {
+    transition: none;
+  }
+  .project-thumbnail.is-revealed .project-thumbnail-image,
+  .project-thumbnail.is-revealed .project-thumbnail-video,
+  .work-card:focus-within .project-thumbnail-image,
+  .work-card:focus-within .project-thumbnail-video,
+  .work-card:hover .project-thumbnail-image,
+  .work-card:hover .project-thumbnail-video {
+    transform: none;
+  }
 }
 .work-body {
   padding-block: 6px;
@@ -1217,6 +1298,13 @@ label > span {
   overscroll-behavior: contain;
   padding: 16px;
   scrollbar-gutter: stable;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.case-dialog.is-switching-project .case-dialog-scroll {
+  opacity: 0.35;
+  transform: translateY(6px);
 }
 .case-dialog-column {
   width: min(760px, 100%);

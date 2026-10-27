@@ -35,6 +35,7 @@ import { useForm } from "react-hook-form";
 import { toast, Toaster } from "sonner";
 import { portfolio, type Project } from "@/data/portfolio";
 import { StackWall } from "@/components/shared/StackWall";
+import { ProjectThumbnail } from "@/components/shared/ProjectThumbnail";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useTheme } from "@/hooks/useTheme";
 import "@/styles/globals.css";
@@ -451,6 +452,9 @@ function CaseDialog({
 }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const previousProjectTitleRef = useRef<string | null>(null);
+  const [isSwitchingProject, setIsSwitchingProject] = useState(false);
+  const isOpen = project !== null;
 
   useLayoutEffect(() => {
     if (!project) return;
@@ -503,7 +507,29 @@ function CaseDialog({
         previousFocus.focus({ preventScroll: true });
       }
     };
-  }, [close, project]);
+  }, [close, isOpen]);
+
+  useLayoutEffect(() => {
+    if (!project) {
+      previousProjectTitleRef.current = null;
+      return;
+    }
+
+    const previousTitle = previousProjectTitleRef.current;
+    previousProjectTitleRef.current = project.title;
+    if (!previousTitle || previousTitle === project.title) {
+      scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+      return;
+    }
+
+    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+    setIsSwitchingProject(true);
+    const timeoutId = window.setTimeout(() => {
+      setIsSwitchingProject(false);
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [project]);
 
   if (!project) return null;
   return (
@@ -519,7 +545,7 @@ function CaseDialog({
       }}
     >
       <motion.div
-        className="case-dialog"
+        className={`case-dialog${isSwitchingProject ? " is-switching-project" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label={`${project.title} case study`}
@@ -1038,56 +1064,6 @@ function CaseStudyMedia({ project }: { project: Project }) {
   );
 }
 
-function ProjectMedia({ project }: { project: Project }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isHovered) {
-      video.play().catch((error: unknown) => {
-        console.warn("Project preview video could not play.", error);
-      });
-    } else {
-      video.pause();
-      video.currentTime = 0;
-    }
-  }, [isHovered]);
-
-  return (
-    <div
-      className={`work-image ${isHovered ? "is-video-active" : ""}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <img
-        src={project.image}
-        alt={`${project.title} interface`}
-        width="1313"
-        height="875"
-        loading="lazy"
-      />
-      {project.video && (
-        <video
-          ref={videoRef}
-          src={project.video}
-          poster={project.image}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-        />
-      )}
-      <span className="work-arrow">
-        <ArrowUpRight size={19} />
-      </span>
-    </div>
-  );
-}
-
 export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [niche, setNiche] = useState<Niche>("all");
@@ -1162,7 +1138,7 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25, ease: "easeOut" }}
                   >
-                    <ProjectMedia project={project} />
+                    <ProjectThumbnail project={project} />
                     <div className="work-body">
                       <div className="work-meta mono">
                         <span>{project.year}</span>

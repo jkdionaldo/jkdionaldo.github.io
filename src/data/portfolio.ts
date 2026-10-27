@@ -33,6 +33,7 @@ export type Project = {
   title: string;
   year: string;
   image: string;
+  focus?: string;
   video?: string;
   description: string;
   role: string;
@@ -90,6 +91,7 @@ export const portfolio = {
       title: "Course Management System",
       year: "2025",
       image: "/images/Ocid.png",
+      focus: "50% 18%",
       video: "/videos/projects/OcidWeb.mp4",
       description:
         "A full-stack system for the Office of Curriculum and Instructional Design at Caraga State University to organize courses, departments, and administrative access.",
@@ -204,6 +206,7 @@ export const portfolio = {
       title: "3D House Planning Builder",
       year: "2025 — 2026",
       image: "/images/3droom.png",
+      focus: "50% 50%",
       video: "/videos/projects/3dweb.mp4",
       description:
         "A browser-based planning tool for floor layouts, furniture placement, real-time cost calculations, and immersive 3D visualization.",
@@ -313,6 +316,7 @@ export const portfolio = {
       title: "E-commerce Website",
       year: "2024 — 2025",
       image: "/images/Ecommerce.png",
+      focus: "50% 50%",
       description:
         "A responsive CheckoutChamp storefront with customized product pages, landing sections, and checkout flow.",
       role: "Front-end developer · freelance",
@@ -324,6 +328,7 @@ export const portfolio = {
       title: "Camera Rental Website",
       year: "2023 — 2024",
       image: "/images/Camera.png",
+      focus: "50% 50%",
       description:
         "A camera rental platform for students and creatives to capture moments without the high cost of owning a camera.",
       role: "Full Stack Developer · freelance",
