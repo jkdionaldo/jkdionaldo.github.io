@@ -32,7 +32,7 @@ import {
 } from "react";
 import { useForm } from "react-hook-form";
 import { toast, Toaster } from "sonner";
-import { portfolio } from "@/data/portfolio";
+import { portfolio, type Project } from "@/data/portfolio";
 import { StackWall } from "@/components/shared/StackWall";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useTheme } from "@/hooks/useTheme";
@@ -434,7 +434,7 @@ function CaseDialog({
   project,
   close,
 }: {
-  project: (typeof portfolio.projects)[number] | null;
+  project: Project | null;
   close: () => void;
 }) {
   if (!project) return null;
@@ -445,8 +445,10 @@ function CaseDialog({
         role="dialog"
         aria-modal="true"
         aria-label={`${project.title} case study`}
+        //For open animation
         initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
+        //until here
         onMouseDown={(event) => event.stopPropagation()}
       >
         <button
@@ -454,7 +456,7 @@ function CaseDialog({
           onClick={close}
           aria-label="Close case study"
         >
-          <X size={18} />
+          <X size={17} />
         </button>
         <img src={project.image} alt="" width="1313" height="875" />
         <p className="mono eyebrow">{project.year} / Engagement report</p>
@@ -484,12 +486,64 @@ function CaseDialog({
   );
 }
 
+function ProjectMedia({
+  project,
+}: {
+  project: Project;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isHovered) {
+      video.play().catch((error: unknown) => {
+        console.warn("Project preview video could not play.", error);
+      });
+    } else {
+      video.pause();
+      video.currentTime = 0;
+    }
+  }, [isHovered]);
+
+  return (
+    <div
+      className={`work-image ${isHovered ? "is-video-active" : ""}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <img
+        src={project.image}
+        alt={`${project.title} interface`}
+        width="1313"
+        height="875"
+        loading="lazy"
+      />
+      {project.video && (
+        <video
+          ref={videoRef}
+          src={project.video}
+          poster={project.image}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
+      )}
+      <span className="work-arrow">
+        <ArrowUpRight size={19} />
+      </span>
+    </div>
+  );
+}
+
 export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [niche, setNiche] = useState<Niche>("all");
-  const [selectedProject, setSelectedProject] = useState<
-    (typeof portfolio.projects)[number] | null
-  >(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const {
     register,
     handleSubmit,
@@ -542,20 +596,9 @@ export default function App() {
                     layout
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
                   >
-                    <div className="work-image">
-                      <img
-                        src={project.image}
-                        alt={`${project.title} interface`}
-                        width="1313"
-                        height="875"
-                        loading="lazy"
-                      />
-                      <span className="work-arrow">
-                        <ArrowUpRight size={19} />
-                      </span>
-                    </div>
+                    <ProjectMedia project={project} />
                     <div className="work-body">
                       <div className="work-meta mono">
                         <span>{project.year}</span>

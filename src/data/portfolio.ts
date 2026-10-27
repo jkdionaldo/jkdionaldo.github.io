@@ -3,6 +3,7 @@ export type Project = {
   title: string;
   year: string;
   image: string;
+  video?: string;
   description: string;
   role: string;
   outcome: string;
@@ -69,6 +70,7 @@ export const portfolio = {
       title: "3D House Planning Builder",
       year: "2025 — 2026",
       image: "/images/3droom.png",
+      video: "/videos/projects/3dweb.mp4",
       description:
         "A browser-based planning tool for floor layouts, furniture placement, real-time cost calculations, and immersive 3D visualization.",
       role: "Full-stack developer · client project",
