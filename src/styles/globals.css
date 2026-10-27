@@ -37,6 +37,7 @@
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
+  scrollbar-gutter: stable;
   scroll-padding-top: var(--header-h);
 }
 body {
@@ -1182,6 +1183,8 @@ label > span {
   display: grid;
   place-items: center;
   padding: 20px;
+  overscroll-behavior: contain;
+  touch-action: none;
   background: #061012aa;
   backdrop-filter: blur(8px);
 }
@@ -1190,18 +1193,23 @@ label > span {
   width: min(620px, 100%);
   max-height: 90vh;
   overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  user-select: text;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
   padding: 18px;
   box-shadow: 0 20px 70px #0005;
 }
-.case-dialog > img {
+.case-dialog > img,
+.case-dialog > video {
   display: block;
   width: 100%;
   aspect-ratio: 1.8;
   object-fit: cover;
   margin-bottom: 25px;
+  user-select: none;
 }
 .case-dialog h2 {
   margin: 8px 0 14px;

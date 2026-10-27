@@ -25,6 +25,7 @@ import {
 } from "@svg-animated-icons/react";
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
@@ -437,9 +438,36 @@ function CaseDialog({
   project: Project | null;
   close: () => void;
 }) {
+  useLayoutEffect(() => {
+    if (!project) return;
+
+    const previousBodyStyles = {
+      overflow: document.body.style.overflow,
+    };
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyStyles.overflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [project]);
+
   if (!project) return null;
   return (
-    <div className="dialog-backdrop" role="presentation" onMouseDown={close}>
+    <div
+      className="dialog-backdrop"
+      role="presentation"
+      onClick={close}
+      onWheel={(event) => {
+        if (event.target === event.currentTarget) event.preventDefault();
+      }}
+      onTouchMove={(event) => {
+        if (event.target === event.currentTarget) event.preventDefault();
+      }}
+    >
       <motion.div
         className="case-dialog"
         role="dialog"
@@ -449,7 +477,8 @@ function CaseDialog({
         initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         //until here
-        onMouseDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onDragStart={(event) => event.preventDefault()}
       >
         <button
           className="dialog-close focus-ring"
@@ -458,7 +487,7 @@ function CaseDialog({
         >
           <X size={17} />
         </button>
-        <img src={project.image} alt="" width="1313" height="875" />
+        <CaseStudyMedia project={project} />
         <p className="mono eyebrow">{project.year} / Engagement report</p>
         <h2>{project.title}</h2>
         <p className="dialog-result">
@@ -486,11 +515,53 @@ function CaseDialog({
   );
 }
 
-function ProjectMedia({
-  project,
-}: {
-  project: Project;
-}) {
+function CaseStudyMedia({ project }: { project: Project }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.play().catch((error: unknown) => {
+      console.warn("Case study video could not play.", error);
+    });
+
+    return () => {
+      video.pause();
+      video.currentTime = 0;
+    };
+  }, [project.video]);
+
+  if (!project.video) {
+    return (
+      <img
+        src={project.image}
+        alt={`${project.title} interface`}
+        width="1313"
+        height="875"
+        draggable={false}
+      />
+    );
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      src={project.video}
+      poster={project.image}
+      width="1313"
+      height="875"
+      draggable={false}
+      autoPlay
+      muted
+      loop
+      playsInline
+      controls
+    />
+  );
+}
+
+function ProjectMedia({ project }: { project: Project }) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
