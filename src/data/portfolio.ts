@@ -89,6 +89,7 @@ export const portfolio = {
       title: "Course Management System",
       year: "2025",
       image: "/images/Ocid.png",
+      video: "/videos/projects/OcidWeb.mp4",
       description:
         "A full-stack system for the Office of Curriculum and Instructional Design at Caraga State University to organize courses, departments, and administrative access.",
       role: "Full-stack developer · OCID internship",
@@ -194,8 +195,7 @@ export const portfolio = {
             },
           ],
         },
-        next:
-          "Draft: document the next improvement you would make after reviewing the project with fresh eyes.",
+        next: "Draft: document the next improvement you would make after reviewing the project with fresh eyes.",
         confirmed: {
           story: true,
           problem: true,
