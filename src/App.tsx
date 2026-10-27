@@ -7,6 +7,7 @@ import {
 import {
   ArrowUpRight,
   Command,
+  ChevronDown,
   Download,
   ExternalLink,
   Mail,
@@ -33,9 +34,16 @@ import {
 import { useForm } from "react-hook-form";
 import { toast, Toaster } from "sonner";
 import { portfolio, type Project } from "@/data/portfolio";
+import {
+  experienceRoles,
+  proofEntries,
+  type ExperienceNiche,
+  type ExperienceRole,
+} from "@/data/experience";
 import { StackWall } from "@/components/shared/StackWall";
 import { ProjectThumbnail } from "@/components/shared/ProjectThumbnail";
 import { AboutPortrait } from "@/components/shared/AboutPortrait";
+import { BlueprintBackground } from "@/components/shared/BlueprintBackground";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useTheme } from "@/hooks/useTheme";
 import "@/styles/globals.css";
@@ -86,6 +94,28 @@ function SectionHeading({
   );
 }
 
+function Section({
+  id,
+  className = "",
+  surface = "transparent",
+  children,
+}: {
+  id?: string;
+  className?: string;
+  surface?: "transparent" | "solid";
+  children: ReactNode;
+}) {
+  return (
+    <section
+      id={id}
+      className={`section ${className}`.trim()}
+      data-surface={surface}
+    >
+      {children}
+    </section>
+  );
+}
+
 function AboutBio({ bio }: { bio: string }) {
   const bioRef = useRef<HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -105,7 +135,6 @@ function AboutBio({ bio }: { bio: string }) {
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-
   const [before, after] = bio.split("cybersecurity");
   return (
     <span ref={bioRef} className={isVisible ? "is-visible" : ""}>
@@ -377,7 +406,7 @@ function Hero() {
     };
   }, [px, py]);
   return (
-    <section className="hero" ref={ref}>
+    <section className="hero" ref={ref} data-surface="transparent">
       <motion.div
         className="hero-portrait"
         style={reducedMotion ? undefined : { x, y }}
@@ -395,7 +424,6 @@ function Hero() {
         />
       </motion.div>
       <div className="hero-scan" aria-hidden="true" />
-      <div className="hero-grid" aria-hidden="true" />
       <div className="hero-wash" />
       <div className="container-shell hero-content">
         <motion.div
@@ -658,6 +686,302 @@ function LegacyCaseStudy({ project }: { project: Project }) {
         </div>
       </dl>
     </>
+  );
+}
+
+const experienceFilters: { value: "all" | ExperienceNiche; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "development", label: "Development" },
+  { value: "cybersecurity", label: "Cybersecurity" },
+  { value: "admin", label: "Admin" },
+  { value: "creative", label: "Creative" },
+];
+
+function formatExperienceDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    year: "numeric",
+  }).format(new Date(`${value}-01T00:00:00`));
+}
+
+function durationInMonths(role: ExperienceRole) {
+  const start = new Date(`${role.start}-01T00:00:00`);
+  const end = new Date(`${role.end}-01T00:00:00`);
+  return Math.max(
+    1,
+    (end.getFullYear() - start.getFullYear()) * 12 +
+      end.getMonth() -
+      start.getMonth() +
+      1,
+  );
+}
+
+function NumberTicker({ value }: { value: number }) {
+  const reducedMotion = useReducedMotion();
+  const [display, setDisplay] = useState(reducedMotion ? value : 0);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setDisplay(value);
+      return;
+    }
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        const start = performance.now();
+        const tick = (now: number) => {
+          const progress = Math.min((now - start) / 650, 1);
+          setDisplay(Math.round(value * (1 - Math.pow(1 - progress, 3))));
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        observer.disconnect();
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [reducedMotion, value]);
+
+  return <span ref={ref}>{display}</span>;
+}
+
+function ProofCard({ entry, index }: { entry: (typeof proofEntries)[number]; index: number }) {
+  return (
+    <article className={`proof-card${index === 0 ? " is-featured" : ""}`}>
+      <span className="proof-marker" aria-hidden="true" />
+      <strong>{entry.result}</strong>
+      <p>{entry.event}</p>
+      {entry.team && <p>{entry.team}</p>}
+      <time className="mono" dateTime={String(entry.year)}>
+        {entry.year}
+      </time>
+    </article>
+  );
+}
+
+function ExperienceSection() {
+  const [filter, setFilter] = useState<"all" | ExperienceNiche>("all");
+  const [openRole, setOpenRole] = useState<string | null>(null);
+  const [activeRole, setActiveRole] = useState<string | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const visibleRoles = filter === "all"
+    ? experienceRoles
+    : experienceRoles.filter((role) => role.niche === filter);
+  const availableFilters = experienceFilters.filter(
+    (item) =>
+      item.value === "all" ||
+      experienceRoles.some((role) => role.niche === item.value) ||
+      (item.value === "cybersecurity" && proofEntries.length > 0),
+  );
+  const earliest = new Date(
+    `${experienceRoles[experienceRoles.length - 1].start}-01T00:00:00`,
+  );
+  const yearsActive = Math.max(
+    0,
+    new Date().getFullYear() -
+      earliest.getFullYear() -
+      (new Date().getMonth() < earliest.getMonth() ? 1 : 0),
+  );
+
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("exp");
+    if (experienceFilters.some((item) => item.value === value)) {
+      setFilter(value as "all" | ExperienceNiche);
+    }
+  }, []);
+
+  useEffect(() => {
+    const update = () => {
+      const node = timelineRef.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const viewport = window.innerHeight;
+      setProgress(Math.min(1, Math.max(0, (viewport * 0.72 - rect.top) / rect.height)));
+      const rows = Array.from(node.querySelectorAll<HTMLElement>(".experience-row"));
+      const center = viewport / 2;
+      const nearest = rows
+        .map((row) => ({ row, distance: Math.abs(row.getBoundingClientRect().top + row.offsetHeight / 2 - center) }))
+        .sort((a, b) => a.distance - b.distance)[0];
+      setActiveRole(nearest?.row.dataset.role ?? null);
+    };
+    let frame = 0;
+    const scroll = () => {
+      if (!frame) frame = requestAnimationFrame(() => { frame = 0; update(); });
+    };
+    update();
+    addEventListener("scroll", scroll, { passive: true });
+    return () => {
+      removeEventListener("scroll", scroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [visibleRoles.length]);
+
+  const changeFilter = (value: "all" | ExperienceNiche) => {
+    setFilter(value);
+    setOpenRole(null);
+    const params = new URLSearchParams(window.location.search);
+    if (value === "all") params.delete("exp");
+    else params.set("exp", value);
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+    );
+  };
+
+  const projectForRole = (role: ExperienceRole) =>
+    role.project
+      ? portfolio.projects.find((project) => project.title === role.project)
+      : undefined;
+
+  return (
+    <div className="container-shell proof-layout">
+      <div className="proof-intro">
+        <p className="mono eyebrow">04 / Proof & Experience</p>
+        <h2>Earned through practice.</h2>
+        <div className="proof-summary">
+          <div><span className="mono">Years active</span><strong><NumberTicker value={yearsActive} /></strong></div>
+          <div><span className="mono">Roles</span><strong><NumberTicker value={experienceRoles.length} /></strong></div>
+          <div><span className="mono">Competition results</span><strong><NumberTicker value={proofEntries.length} /></strong></div>
+        </div>
+        <div className="experience-filter" role="group" aria-label="Filter experience">
+          {availableFilters.map((item) => {
+            const count = item.value === "all"
+              ? experienceRoles.length
+              : experienceRoles.filter((role) => role.niche === item.value).length;
+            return (
+              <button
+                type="button"
+                key={item.value}
+                className={filter === item.value ? "is-selected" : ""}
+                onClick={() => changeFilter(item.value)}
+                aria-pressed={filter === item.value}
+              >
+                {item.label} <span>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="visually-hidden" aria-live="polite">
+          {visibleRoles.length} roles shown
+        </p>
+      </div>
+      <div className="proof-content">
+        <section aria-labelledby="proof-heading">
+          <div className="proof-subheading">
+            <p id="proof-heading" className="mono eyebrow">Proof</p>
+            <span className="mono">Competition results</span>
+          </div>
+          <div className="proof-cards">
+            {proofEntries.map((entry, index) => <ProofCard key={entry.id} entry={entry} index={index} />)}
+          </div>
+        </section>
+        <section aria-labelledby="experience-heading">
+          <div className="proof-subheading">
+            <p id="experience-heading" className="mono eyebrow">Experience</p>
+            <span className="mono">{visibleRoles.length} roles</span>
+          </div>
+          {visibleRoles.length ? (
+            <div className="experience-timeline" ref={timelineRef}>
+              <span className="timeline-base" aria-hidden="true" />
+              <span
+                className="timeline-progress"
+                aria-hidden="true"
+                style={{ transform: `scaleY(${reducedMotion ? 1 : progress})` }}
+              />
+              <ol>
+                {visibleRoles.map((role, index) => {
+                  const expanded = openRole === role.id;
+                  const project = projectForRole(role);
+                  const expandable = Boolean(role.details?.length || project);
+                  return (
+                    <motion.li
+                      layout
+                      key={role.id}
+                      className={`experience-row${expanded ? " is-open" : ""}`}
+                      data-role={role.id}
+                      initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.2 }}
+                      transition={{ duration: 0.3, delay: index * 0.04 }}
+                    >
+                      <span
+                        className={`timeline-dot${progress >= (index + 1) / visibleRoles.length ? " is-reached" : ""}`}
+                        aria-hidden="true"
+                      />
+                      {expandable ? (
+                        <button
+                          type="button"
+                          className="experience-row-button focus-ring"
+                          aria-expanded={expanded}
+                          aria-controls={`experience-${role.id}`}
+                          onClick={() => setOpenRole(expanded ? null : role.id)}
+                        >
+                          <ExperienceRowContent role={role} active={activeRole === role.id} />
+                          <ChevronDown className="experience-chevron" size={18} />
+                        </button>
+                      ) : (
+                        <div className="experience-row-button">
+                          <ExperienceRowContent role={role} active={activeRole === role.id} />
+                        </div>
+                      )}
+                      {expanded && (
+                        <motion.div
+                          id={`experience-${role.id}`}
+                          className="experience-details"
+                          initial={reducedMotion ? false : { opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                        >
+                          {role.details?.map((detail) => <p key={detail}>{detail}</p>)}
+                          {project && (
+                            <button
+                              type="button"
+                              className="experience-project-link mono"
+                              onClick={() => window.dispatchEvent(new CustomEvent("open-project", { detail: project }))}
+                            >
+                              View the project <ArrowUpRight size={14} />
+                            </button>
+                          )}
+                        </motion.div>
+                      )}
+                    </motion.li>
+                  );
+                })}
+              </ol>
+            </div>
+          ) : (
+            <div className="experience-empty">
+              <p>No roles are currently tagged with this niche.</p>
+              <button type="button" className="button button-secondary" onClick={() => changeFilter("all")}>Show all roles</button>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function ExperienceRowContent({ role, active }: { role: ExperienceRole; active: boolean }) {
+  return (
+    <span className="experience-row-content">
+      <span className="experience-date mono">
+        <time dateTime={role.start}>{formatExperienceDate(role.start)}</time>
+        {" – "}
+        <time dateTime={role.end}>{formatExperienceDate(role.end)}</time>
+        <small>{durationInMonths(role)} mo</small>
+      </span>
+      <strong className={active ? "is-active" : ""}>{role.title}</strong>
+      {(role.org || role.place) && <span className="experience-org">{[role.org, role.place].filter(Boolean).join(" · ")}</span>}
+      <span className="experience-niche mono">{role.niche}</span>
+      {role.current && <span className="experience-now mono">● Now</span>}
+    </span>
   );
 }
 
@@ -1106,6 +1430,14 @@ export default function App() {
   } = useForm<FormValues>();
   const [sent, setSent] = useState(false);
   useEffect(() => {
+    const openProject = (event: Event) => {
+      const project = (event as CustomEvent<Project>).detail;
+      if (project) setSelectedProject(project);
+    };
+    window.addEventListener("open-project", openProject);
+    return () => window.removeEventListener("open-project", openProject);
+  }, []);
+  useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
@@ -1137,12 +1469,13 @@ export default function App() {
     reset();
   };
   return (
-    <>
+    <div className="app-shell">
+      <BlueprintBackground />
       <CommandPalette open={paletteOpen} close={() => setPaletteOpen(false)} />
       <Header openPalette={() => setPaletteOpen(true)} />
       <main id="top">
         <Hero />
-        <section id="work" className="section">
+        <Section id="work">
           <div className="container-shell">
             <SectionHeading
               index="01 / Selected work"
@@ -1218,8 +1551,8 @@ export default function App() {
               available.
             </p> */}
           </div>
-        </section>
-        <section id="expertise" className="section section-tinted">
+        </Section>
+        <Section id="expertise" surface="solid">
           <div className="container-shell">
             <SectionHeading
               index="02 / Stack"
@@ -1248,8 +1581,8 @@ export default function App() {
             </div>
             <StackWall />
           </div>
-        </section>
-        <section id="about" className="section">
+        </Section>
+        <Section id="about">
           <div className="container-shell about-grid">
             <div className="about-image">
               <AboutPortrait
@@ -1313,39 +1646,11 @@ export default function App() {
               </a>
             </div>
           </div>
-        </section>
-        <section className="section proof-section">
-          <div className="container-shell proof-grid">
-            <div>
-              <p className="mono eyebrow">04 / Proof & experience</p>
-              <h2>Earned through practice.</h2>
-            </div>
-            <div className="proof-items">
-              <div className="timeline-line" />
-              {portfolio.experience.map((item) => (
-                <article className="proof-item" key={item.title}>
-                  <span className="mono">{item.date}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.detail}</p>
-                </article>
-              ))}
-              <div className="proof-item">
-                <span className="mono">2023 — 2024</span>
-                <h3>Cybersecurity competitions</h3>
-                <p>
-                  1st and 3rd placer in a DICT hackathon event (2023); Team
-                  CarSU Cyber Ninja champion and Team CarSU CyberKnights 8th
-                  placer (2024).
-                </p>
-              </div>
-              {/* <p className="mono todo-note">
-                TODO / Add verified links for certificates, write-ups, and
-                open-source contributions.
-              </p> */}
-            </div>
-          </div>
-        </section>
-        <section id="contact" className="section contact-section">
+        </Section>
+        <Section className="proof-section" surface="solid">
+          <ExperienceSection />
+        </Section>
+        <Section id="contact" className="contact-section">
           <div className="container-shell contact-grid">
             <div>
               <p className="mono eyebrow">&gt; contact</p>
@@ -1446,7 +1751,7 @@ export default function App() {
               </form>
             </div>
           </div>
-        </section>
+        </Section>
       </main>
       <footer className="site-footer">
         <div className="container-shell footer-inner">
@@ -1465,6 +1770,6 @@ export default function App() {
         openNext={openNextProject}
       />
       <Toaster richColors />
-    </>
+    </div>
   );
 }

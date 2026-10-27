@@ -105,6 +105,33 @@ source image or preview video on hover, keyboard focus, or touch viewport
 entry. Add a `focus` object-position to a project only when its source image
 needs a different crop; otherwise it defaults to `top center`.
 
+The site background uses one fixed, decorative `BlueprintBackground` layer.
+It uses 64px graph-paper lines on desktop and 48px lines on mobile, with
+low-opacity crosshair marks, an edge fade, and no scroll animation. A
+desktop-only pointer spotlight is updated through one throttled listener and is
+disabled for touch and reduced-motion users. Keep content surfaces such as
+dialogs, headers, cards, inputs, and palettes opaque so text never sits over
+the pattern.
+
+Page sections use the shared `Section` wrapper with `surface="transparent"` by
+default. Use `surface="solid"` for sections that must fully cover the
+background pattern; it renders `data-surface="solid"`, applies an opaque
+surface token, and adds intentional hairline seams. The current solid sections
+are `02 / Stack` and `04 / Proof & experience`. Work, About, Contact, and the
+Hero remain transparent. Section-specific grid or crosshair overlays should
+not be added; the global blueprint is the only page grid.
+
+The `04 / Proof & Experience` section uses typed records from
+`src/data/experience.ts`. Keep the left summary/filter column sticky on
+desktop and static on mobile. Proof entries are separate cards; roles are an
+ordered timeline with ISO dates formatted through `Intl.DateTimeFormat`,
+computed durations, niche filtering via `?exp=`, and one expandable row at a
+time. Add details or a project identifier only when the source data supports
+an expand control; roles without details remain static. Add new competition
+results to `proofEntries` and new roles to `experienceRoles`, including a
+TODO for any missing organization, current-status, event mapping, or niche
+confirmation.
+
 The About portrait uses `AboutPortrait` with a 4:5 frame, a 1px border, and
 data-driven focal points. The current focal values are 55% x / 80% y on
 desktop and 55% x / 78% y on mobile; the image uses `object-fit: cover`
