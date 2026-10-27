@@ -679,14 +679,73 @@ button {
 .about-grid {
   display: grid;
   grid-template-columns: 0.7fr 1.3fr;
-  align-items: center;
+  align-items: start;
   gap: clamp(48px, 9vw, 120px);
 }
-.about-image img {
+.about-image {
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+  align-self: start;
+}
+.about-portrait {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-tinted);
+  outline: none;
+}
+.about-portrait::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  mask-image: radial-gradient(ellipse at center, #000 84%, transparent 100%);
+  background: var(--background);
+  opacity: 0.15;
+}
+.about-portrait img {
   display: block;
   width: 100%;
-  height: auto;
-  filter: grayscale(0.2);
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--portrait-focal-x) var(--portrait-focal-y);
+  filter: grayscale(70%) brightness(0.96) contrast(1.03);
+  transition: filter 350ms ease-out;
+}
+.dark .about-portrait img {
+  filter: grayscale(85%) brightness(0.9) contrast(1.05);
+}
+.about-portrait-tint,
+.about-portrait-gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease-out;
+}
+.about-portrait-tint {
+  background: var(--accent);
+  mix-blend-mode: color;
+  opacity: 0.16;
+}
+.about-portrait-gradient {
+  background: linear-gradient(to top, var(--background), transparent 42%);
+  opacity: 0.55;
+}
+.about-portrait.is-revealed,
+.about-portrait:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+.about-portrait.is-revealed img,
+.about-portrait:focus-visible img {
+  filter: none;
+}
+.about-portrait.is-revealed .about-portrait-tint,
+.about-portrait:focus-visible .about-portrait-tint,
+.about-portrait.is-revealed .about-portrait-gradient,
+.about-portrait:focus-visible .about-portrait-gradient {
+  opacity: 0;
 }
 .about-facts {
   display: grid;
@@ -698,6 +757,7 @@ button {
 }
 .about-facts div {
   display: grid;
+  align-content: start;
   gap: 6px;
 }
 .about-facts span {
@@ -721,13 +781,69 @@ button {
 }
 .currently li {
   display: flex;
+  align-items: flex-start;
   gap: 9px;
   color: var(--muted);
   font-size: 14px;
 }
-.currently svg {
+.currently li > span {
   flex: none;
+  width: 6px;
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.about-contact-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  margin-top: 28px;
   color: var(--accent);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.about-contact-link svg {
+  flex: none;
+}
+.section-lede .marker-highlight {
+  position: relative;
+  z-index: 0;
+  display: inline;
+  padding-inline: 3px;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--foreground);
+  text-decoration: none;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.section-lede .marker-highlight::before {
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  bottom: 8%;
+  left: 0;
+  height: 58%;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.section-lede > span.is-visible .marker-highlight::before {
+  animation: marker-highlight-draw 700ms 220ms ease-out forwards;
+}
+@keyframes marker-highlight-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (max-width: 800px) {
+  .about-portrait img {
+    object-position: var(--portrait-focal-mobile-x) var(--portrait-focal-mobile-y);
+  }
 }
 .proof-section {
   background: var(--surface);
@@ -1053,6 +1169,10 @@ label > span {
   }
   .about-image {
     max-width: 390px;
+    position: static;
+  }
+  .about-portrait {
+    max-height: 420px;
   }
   .proof-grid {
     gap: 48px;
@@ -1807,6 +1927,10 @@ label > span {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .section-lede > span .marker-highlight::before {
+    animation: none;
+    transform: scaleX(1);
+  }
   .hero-title,
   .beam-lines i,
   .timeline-line {

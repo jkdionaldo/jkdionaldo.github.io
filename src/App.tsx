@@ -6,7 +6,6 @@ import {
 } from "framer-motion";
 import {
   ArrowUpRight,
-  Check,
   Command,
   Download,
   ExternalLink,
@@ -36,6 +35,7 @@ import { toast, Toaster } from "sonner";
 import { portfolio, type Project } from "@/data/portfolio";
 import { StackWall } from "@/components/shared/StackWall";
 import { ProjectThumbnail } from "@/components/shared/ProjectThumbnail";
+import { AboutPortrait } from "@/components/shared/AboutPortrait";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useTheme } from "@/hooks/useTheme";
 import "@/styles/globals.css";
@@ -83,6 +83,36 @@ function SectionHeading({
       <h2>{title}</h2>
       {children && <p className="section-lede">{children}</p>}
     </div>
+  );
+}
+
+function AboutBio({ bio }: { bio: string }) {
+  const bioRef = useRef<HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = bioRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const [before, after] = bio.split("cybersecurity");
+  return (
+    <span ref={bioRef} className={isVisible ? "is-visible" : ""}>
+      {before}
+      <mark className="marker-highlight">cybersecurity</mark>
+      {after}
+    </span>
   );
 }
 
@@ -1222,20 +1252,18 @@ export default function App() {
         <section id="about" className="section">
           <div className="container-shell about-grid">
             <div className="about-image">
-              <img
+              <AboutPortrait
                 src={portfolio.aboutPhoto}
-                alt="Portrait of Jan Kevin Dionaldo"
-                width="1313"
-                height="875"
-                loading="lazy"
+                focal={portfolio.aboutPortrait.focal}
+                focalMobile={portfolio.aboutPortrait.focalMobile}
               />
             </div>
             <div>
               <SectionHeading
                 index="03 / About"
-                title="Curious, practical, and Always learning."
+                title="Curious, practical, and always learning."
               >
-                {portfolio.bio}
+                <AboutBio bio={portfolio.bio} />
               </SectionHeading>
               <div className="about-facts">
                 <div>
@@ -1259,23 +1287,30 @@ export default function App() {
                 <p className="mono eyebrow">Currently</p>
                 <ul>
                   <li>
-                    <Check size={15} /> Open to IT, Admin, and Web Development
-                    opportunities
+                    <span aria-hidden="true" /> Open to IT, Admin, and Web
+                    Development opportunities
                   </li>
                   <li>
-                    <Check size={15} /> Building web applications and portfolio
-                    projects
+                    <span aria-hidden="true" /> Building web applications and
+                    portfolio projects
                   </li>
                   <li>
-                    <Check size={15} /> Applying practical skills in frontend
-                    and backend development
+                    <span aria-hidden="true" /> Applying practical skills in
+                    frontend and backend development
                   </li>
                   <li>
-                    <Check size={15} /> Exploring modern UI design and
+                    <span aria-hidden="true" /> Exploring modern UI design and
                     interactive web experiences
                   </li>
                 </ul>
               </div>
+              <a
+                className="about-contact-link focus-ring mono"
+                href="#contact"
+                onClick={(event) => navigateToSection(event, "#contact")}
+              >
+                Get in touch <ArrowUpRight size={14} />
+              </a>
             </div>
           </div>
         </section>

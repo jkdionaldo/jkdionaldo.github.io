@@ -55,6 +55,10 @@ export const portfolio = {
   location: "Jumeirah Lake Towers, Al Thanyah 5, Dubai, United Arab Emirates",
   photo: "/images/main_picture/kevin.JPG",
   aboutPhoto: "/images/main_picture/me.jpg",
+  aboutPortrait: {
+    focal: { x: 55, y: 80 },
+    focalMobile: { x: 55, y: 78 },
+  },
   cv: "/cv/ATS_CV.pdf",
   nav: [
     { label: "About", href: "#about" },

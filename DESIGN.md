@@ -104,3 +104,13 @@ frame at 16:10, applies a muted theme treatment at rest, and reveals the
 source image or preview video on hover, keyboard focus, or touch viewport
 entry. Add a `focus` object-position to a project only when its source image
 needs a different crop; otherwise it defaults to `top center`.
+
+The About portrait uses `AboutPortrait` with a 4:5 frame, a 1px border, and
+data-driven focal points. The current focal values are 55% x / 80% y on
+desktop and 55% x / 78% y on mobile; the image uses `object-fit: cover`
+without scaling. At rest it uses 70% grayscale in light mode and 85%
+grayscale in dark mode, with 0.16 accent tint opacity and a soft background
+gradient. It reveals the original color on hover, keyboard focus, or touch
+viewport entry. To swap it, change `portfolio.aboutPhoto` in
+`src/data/portfolio.ts`; adjust `aboutPortrait.focal` and
+`aboutPortrait.focalMobile` when the subject framing requires it.
