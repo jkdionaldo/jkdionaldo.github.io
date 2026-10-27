@@ -55,7 +55,7 @@ export const portfolio = {
   location: "Jumeirah Lake Towers, Al Thanyah 5, Dubai, United Arab Emirates",
   photo: "/images/main_picture/kevin.JPG",
   aboutPhoto: "/images/main_picture/me.jpg",
-  cv: "/cv/CV.pdf",
+  cv: "/cv/ATS_CV.pdf",
   nav: [
     { label: "About", href: "#about" },
     { label: "Work", href: "#work" },
@@ -141,12 +141,14 @@ export const portfolio = {
             {
               id: "routes",
               label: "React Router",
-              caption: "Routes public program pages and protected dashboard views.",
+              caption:
+                "Routes public program pages and protected dashboard views.",
             },
             {
               id: "components",
               label: "React UI",
-              caption: "Program details, dashboard tabs, forms, and file workflows.",
+              caption:
+                "Program details, dashboard tabs, forms, and file workflows.",
             },
             {
               id: "hooks",
@@ -156,7 +158,8 @@ export const portfolio = {
             {
               id: "services",
               label: "Axios services",
-              caption: "Connects the interface to dashboard, college, form, and file APIs.",
+              caption:
+                "Connects the interface to dashboard, college, form, and file APIs.",
             },
           ],
           links: [
@@ -191,8 +194,7 @@ export const portfolio = {
             },
           ],
         },
-        next:
-          "A next pass would make the most-used administrative workflows even faster to scan and operate across desktop and mobile layouts.",
+        next: "A next pass would make the most-used administrative workflows even faster to scan and operate across desktop and mobile layouts.",
         confirmed: {
           story: true,
           problem: true,
