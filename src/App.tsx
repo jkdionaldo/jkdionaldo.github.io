@@ -708,7 +708,7 @@ function CaseStudyBody({
                 </li>
               ))}
             </ol>
-            <MiniPlanner />
+            {caseStudy.interactive === "planner" && <MiniPlanner />}
           </CaseStudySection>
         )}
 

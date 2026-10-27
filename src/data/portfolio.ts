@@ -20,6 +20,7 @@ export type CaseStudy = {
   security?: { items: { label: string; value: string }[] };
   next?: string;
   links?: { demo?: string; source?: string };
+  interactive?: "planner";
   confirmed: {
     story: boolean;
     problem: boolean;
@@ -96,6 +97,108 @@ export const portfolio = {
       outcome:
         "Created a single system for course encoding, department mapping, and staff administration.",
       tags: ["React", "Tailwind CSS", "Laravel", "PostgreSQL"],
+      caseStudy: {
+        story:
+          "I built a course management system for the Office of Curriculum and Instructional Design at Caraga State University. I set out to bring course encoding, department mapping, and staff administration into one place that could serve both public program pages and protected administrative work.",
+        problem: {
+          context:
+            "The system brings academic programs, curriculum information, institutional files, and administrative workflows into one React application for CSU Main and CSU Cabadbaran Campus.",
+          before:
+            "Program information and institutional files were handled across separate pages and administrative workflows.",
+          after:
+            "Public program details and protected management tools share one organized application.",
+        },
+        challenges: [
+          {
+            title: "Support public and administrative experiences",
+            decision:
+              "I separated public program pages from dashboard modules while keeping them inside the same routed SPA.",
+            tradeoff:
+              "The shared application keeps navigation consistent, but public and protected flows need different route and access rules.",
+            tag: "Information architecture",
+          },
+          {
+            title: "Keep academic data manageable",
+            decision:
+              "I organized management work into focused modules for colleges, programs, forms, and files.",
+            tradeoff:
+              "Focused modules make tasks easier to locate, while the dashboard needs shared data and action state across tabs.",
+            tag: "Dashboard state",
+          },
+          {
+            title: "Validate and protect administrative actions",
+            decision:
+              "I used protected routes, Google OAuth, JWT session handling, and React Hook Form with Zod validation.",
+            tradeoff:
+              "More checks make the administrative flow safer to operate, but authentication and validation state must be handled consistently.",
+            tag: "Access control",
+          },
+        ],
+        architecture: {
+          nodes: [
+            {
+              id: "routes",
+              label: "React Router",
+              caption: "Routes public program pages and protected dashboard views.",
+            },
+            {
+              id: "components",
+              label: "React UI",
+              caption: "Program details, dashboard tabs, forms, and file workflows.",
+            },
+            {
+              id: "hooks",
+              label: "Custom hooks",
+              caption: "Coordinates dashboard data, filters, and operations.",
+            },
+            {
+              id: "services",
+              label: "Axios services",
+              caption: "Connects the interface to dashboard, college, form, and file APIs.",
+            },
+          ],
+          links: [
+            ["routes", "components"],
+            ["components", "hooks"],
+            ["hooks", "services"],
+          ],
+          summary:
+            "In plain terms, routes decide which experience to show, React components present the work, custom hooks coordinate state, and service modules handle the API requests behind the interface.",
+        },
+        security: {
+          items: [
+            {
+              label: "Auth",
+              value:
+                "Google OAuth integration with JWT token management and automatic refresh.",
+            },
+            {
+              label: "Access",
+              value:
+                "Protected routes and admin controls restrict dashboard workflows.",
+            },
+            {
+              label: "Validation",
+              value:
+                "React Hook Form and Zod are used for interactive form validation.",
+            },
+            {
+              label: "Storage",
+              value:
+                "The repository documents encrypted client-side storage for session-related data.",
+            },
+          ],
+        },
+        next:
+          "A next pass would make the most-used administrative workflows even faster to scan and operate across desktop and mobile layouts.",
+        confirmed: {
+          story: true,
+          problem: true,
+          challenges: true,
+          architecture: true,
+          security: true,
+        },
+      },
     },
     {
       title: "3D House Planning Builder",
@@ -176,6 +279,7 @@ export const portfolio = {
           summary:
             "In plain terms, the interface gives users a visual room to work with, while the planning state connects what they see with the information behind it.",
         },
+        interactive: "planner",
         security: {
           items: [
             {

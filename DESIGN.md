@@ -92,6 +92,9 @@ Chapter controls must scroll the dialog container, not the page.
 
 Interactive case-study blocks should be local, self-contained React components.
 Keep their state inside the block, expose native buttons and `aria-pressed` or
-`aria-live` where appropriate, and do not add tracking or backend calls. Add
-the block inside the relevant case-study section, keep it readable without
-motion, and ensure it does not change the source `caseStudy` content model.
+`aria-live` where appropriate, and do not add tracking or backend calls. A
+project-specific block must be explicitly opted into through the case study
+data (for example, `interactive: "planner"`); never render a project-specific
+demo for every project by default. Add the block inside the relevant
+case-study section, keep it readable without motion, and keep the data field
+typed as a finite set of supported interactive variants.
