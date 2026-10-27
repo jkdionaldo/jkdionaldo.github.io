@@ -233,6 +233,7 @@ export function StackWall() {
         ref={wallRef}
         data-paused={paused || !inView || reducedMotion}
       >
+        <div className="stack-blueprint" aria-hidden="true" />
         {filter === "All" && !reducedMotion ? (
           <div className="stack-marquee-wall" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
             {rows.map((row, rowIndex) => (
