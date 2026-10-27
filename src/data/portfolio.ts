@@ -1,4 +1,33 @@
 export type Skill = { name: string; level: number };
+export type CaseStudy = {
+  story: string;
+  problem: {
+    context: string;
+    before: string;
+    after: string;
+  };
+  challenges: {
+    title: string;
+    decision: string;
+    tradeoff: string;
+    tag?: string;
+  }[];
+  architecture: {
+    nodes: { id: string; label: string; caption: string }[];
+    links: [string, string][];
+    summary: string;
+  };
+  security?: { items: { label: string; value: string }[] };
+  next?: string;
+  links?: { demo?: string; source?: string };
+  confirmed: {
+    story: boolean;
+    problem: boolean;
+    challenges: boolean;
+    architecture: boolean;
+    security: boolean;
+  };
+};
 export type Project = {
   title: string;
   year: string;
@@ -9,6 +38,7 @@ export type Project = {
   outcome: string;
   tags: string[];
   link?: string;
+  caseStudy?: CaseStudy;
 };
 
 export const portfolio = {
@@ -77,6 +107,103 @@ export const portfolio = {
       outcome:
         "Enabled users to explore house layouts and costs directly in the browser.",
       tags: ["A-Frame", "Three.js", "Supabase", "Real-time data"],
+      caseStudy: {
+        story:
+          "I built a browser-based planning tool that brings floor layouts, furniture placement, cost calculations, and 3D visualization into one place. I set out to make the planning process explorable in the browser instead of limiting it to a static plan.",
+        problem: {
+          context:
+            "The project is a browser-based tool for exploring house layouts, placing furniture, and checking costs alongside an immersive 3D view.",
+          before:
+            "Planning a room meant switching between a layout, a furniture list, and a separate cost estimate.",
+          after:
+            "Users can explore layouts, place furniture, and review costs in one browser experience.",
+        },
+        challenges: [
+          {
+            title: "Make spatial planning feel direct",
+            decision:
+              "I used an interactive 3D scene so users could inspect the room while arranging its contents.",
+            tradeoff:
+              "A richer visual experience requires more careful sizing and performance decisions than a flat form.",
+            tag: "3D interaction",
+          },
+          {
+            title: "Keep planning details connected",
+            decision:
+              "I treated layout choices, furniture placement, and cost information as parts of the same planning flow.",
+            tradeoff:
+              "Connected updates make the experience clearer, but each change needs to stay consistent across the interface.",
+            tag: "State sync",
+          },
+          {
+            title: "Make the result understandable in the browser",
+            decision:
+              "I combined a visual room view with supporting planning information instead of relying on the scene alone.",
+            tradeoff:
+              "The interface has to balance an immersive view with controls and information that remain easy to scan.",
+            tag: "UX",
+          },
+        ],
+        architecture: {
+          nodes: [
+            {
+              id: "browser",
+              label: "Browser UI",
+              caption: "Users choose and review planning information.",
+            },
+            {
+              id: "scene",
+              label: "3D scene",
+              caption: "A-Frame and Three.js present the room visually.",
+            },
+            {
+              id: "planning",
+              label: "Planning state",
+              caption: "Layout, furniture, and cost choices stay connected.",
+            },
+            {
+              id: "supabase",
+              label: "Supabase",
+              caption: "The project includes a data layer for the application.",
+            },
+          ],
+          links: [
+            ["browser", "scene"],
+            ["scene", "planning"],
+            ["planning", "supabase"],
+          ],
+          summary:
+            "In plain terms, the interface gives users a visual room to work with, while the planning state connects what they see with the information behind it.",
+        },
+        security: {
+          items: [
+            {
+              label: "Data",
+              value:
+                "Draft: replace this line with the exact data stored by the project.",
+            },
+            {
+              label: "Access",
+              value:
+                "Draft: replace this line with the verified access and authentication behavior.",
+            },
+            {
+              label: "Validation",
+              value:
+                "Draft: replace this line with the validation rules implemented in the project.",
+            },
+          ],
+        },
+        next:
+          "Draft: document the next improvement you would make after reviewing the project with fresh eyes.",
+        confirmed: {
+          story: true,
+          problem: true,
+          challenges: true,
+          architecture: true,
+          security: true,
+        },
+      },
     },
     {
       title: "E-commerce Website",

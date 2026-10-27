@@ -14,7 +14,7 @@ Tokens are defined in [`src/styles/globals.css`](./src/styles/globals.css). The 
 
 - Use `01 / Selected work`, status lines, key/value facts, dates, tags, and `TOOLS / STACK` as structural metadata.
 - Use the terminal cue exactly once as `> contact`; the contact form remains a conventional accessible form.
-- Case studies are presented as engagement reports: role, stack, result, description, and a clear TODO where evidence is missing.
+- Case studies use a story-led body: a short story, evidence-backed context, implementation decisions, architecture, and security/data notes. Do not repeat card content as labeled rows; use one compact `Role / Year / Type` strip under the title. Unsupported sections stay hidden through `caseStudy.confirmed` flags and are tracked in `CASE_STUDY_TODO.md`.
 - Do not add a PGP key, certification, metric, client name, security header claim, or contribution unless it is verified.
 
 ## HCI and accessibility
@@ -47,3 +47,51 @@ GodUI is the motion language for the replacement pass. The implementation follow
 - Timeline: the experience line draws once. Contact keeps the terminal cue and standard accessible form.
 
 No canvas, video, fluid cursor, confetti, or looping decorative effects were added. The requested ASCII Dither, Scroll Stack, and Terminal packages were deliberately represented with CSS/static equivalents where the repository has no verified GodUI implementation, avoiding a performance regression or invented dependency. `prefers-reduced-motion` disables the scan, beam, spotlight, and timeline motion.
+
+## Case study component rules
+
+`CaseStudyBody` in [`src/App.tsx`](./src/App.tsx) renders every structured case
+study from the typed `caseStudy` object in
+[`src/data/portfolio.ts`](./src/data/portfolio.ts). It is intentionally
+data-driven: do not duplicate the markup for individual projects. A project
+without `caseStudy` keeps the legacy role/stack/scope fallback until its facts
+are verified.
+
+To add another case study:
+
+1. Add a `caseStudy` object to the project in `src/data/portfolio.ts`.
+2. Fill `story`, `problem`, `challenges`, `architecture`, and optional
+   `security`, `next`, and approved `links` from repository or document
+   evidence.
+3. Set each `confirmed` field to `true` only when that section is traceable.
+   Unsupported sections are hidden on the live page.
+4. Add exact questions and evidence locations to `CASE_STUDY_TODO.md` for
+   every unverified claim.
+5. Keep `links.source` empty unless the public repository is approved for the
+   case-study footer. Keep media dimensions explicit and keep the video poster
+   as the layout-stable fallback.
+
+The dialog traps keyboard focus, closes with Escape, restores focus to the
+launching card, locks background scrolling, and keeps its own content
+scrollable. The story and decision cards reveal once with transform/opacity
+motion and become immediate static content under reduced motion.
+
+### Case-study dialog layout and interactive blocks
+
+The case-study dialog is a centered `min(920px, 92vw)` surface with an 88vh
+maximum height on desktop. Its scroll container is the only scrolling region.
+On small screens it becomes a bottom sheet with a 92dvh maximum height, rounded
+top corners, and a drag handle. The media stays inside the dialog padding at a
+16:9 ratio with a poster to prevent layout shift. The sticky action bar has an
+opaque surface and the scroll content reserves space below it.
+
+The chapter rail observes sections using the dialog scroll container as its
+`IntersectionObserver` root. To add a chapter, add its stable section ID to
+`caseStudyChapters` and render the matching section through `CaseStudySection`.
+Chapter controls must scroll the dialog container, not the page.
+
+Interactive case-study blocks should be local, self-contained React components.
+Keep their state inside the block, expose native buttons and `aria-pressed` or
+`aria-live` where appropriate, and do not add tracking or backend calls. Add
+the block inside the relevant case-study section, keep it readable without
+motion, and ensure it does not change the source `caseStudy` content model.

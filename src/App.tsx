@@ -13,7 +13,6 @@ import {
   Mail,
   Moon,
   Sun,
-  Terminal,
   X,
 } from "lucide-react";
 import {
@@ -26,6 +25,7 @@ import {
 import {
   useEffect,
   useLayoutEffect,
+  useCallback,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
@@ -41,6 +41,13 @@ import "@/styles/globals.css";
 
 type FormValues = { name: string; email: string; message: string };
 type Niche = "all" | "development" | "security";
+const caseStudyChapters = [
+  { id: "case-story", label: "01 / Story" },
+  { id: "case-problem", label: "02 / Problem" },
+  { id: "case-decisions", label: "03 / Decisions" },
+  { id: "case-architecture", label: "04 / How it works" },
+  { id: "case-security", label: "05 / Security & data" },
+];
 const navItems = [
   { label: "Work", href: "#work" },
   { label: "Expertise", href: "#expertise" },
@@ -434,13 +441,21 @@ function NicheToggle({
 function CaseDialog({
   project,
   close,
+  nextProject,
+  openNext,
 }: {
   project: Project | null;
   close: () => void;
+  nextProject: Project | null;
+  openNext: () => void;
 }) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   useLayoutEffect(() => {
     if (!project) return;
 
+    const previousFocus = document.activeElement;
     const previousBodyStyles = {
       overflow: document.body.style.overflow,
     };
@@ -448,12 +463,47 @@ function CaseDialog({
 
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
+    closeButtonRef.current?.focus({ preventScroll: true });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const dialog = document.querySelector<HTMLElement>(".case-dialog");
+      if (!dialog) return;
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button, a[href], video[controls], [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("disabled"));
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousBodyStyles.overflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
+      if (previousFocus instanceof HTMLElement) {
+        previousFocus.focus({ preventScroll: true });
+      }
     };
-  }, [project]);
+  }, [close, project]);
 
   if (!project) return null;
   return (
@@ -473,6 +523,7 @@ function CaseDialog({
         role="dialog"
         aria-modal="true"
         aria-label={`${project.title} case study`}
+        tabIndex={-1}
         //For open animation
         initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -480,38 +531,464 @@ function CaseDialog({
         onClick={(event) => event.stopPropagation()}
         onDragStart={(event) => event.preventDefault()}
       >
-        <button
-          className="dialog-close focus-ring"
-          onClick={close}
-          aria-label="Close case study"
-        >
-          <X size={17} />
-        </button>
-        <CaseStudyMedia project={project} />
-        <p className="mono eyebrow">{project.year} / Engagement report</p>
-        <h2>{project.title}</h2>
-        <p className="dialog-result">
-          <strong>Result</strong> {project.outcome}
-        </p>
-        <dl>
-          <div>
-            <dt>Role</dt>
-            <dd>{project.role}</dd>
+        <header className="case-dialog-header">
+          <span className="dialog-drag-handle" aria-hidden="true" />
+          <button
+            ref={closeButtonRef}
+            className="dialog-close focus-ring"
+            onClick={close}
+            aria-label="Close case study"
+          >
+            <X size={17} />
+          </button>
+          {project.caseStudy && (
+            <CaseStudyChapterHeader scrollRootRef={scrollRef} />
+          )}
+        </header>
+        <div className="case-dialog-scroll" ref={scrollRef}>
+          <div className="case-dialog-column">
+            <CaseStudyMedia project={project} />
+            <p className="mono eyebrow">Case study</p>
+            <h2>{project.title}</h2>
+        {project.caseStudy ? (
+          <>
+            <CaseStudyMeta project={project} />
+            <CaseStudyBody
+              project={project}
+              nextProject={nextProject}
+              openNext={openNext}
+              close={close}
+            />
+          </>
+        ) : (
+          <LegacyCaseStudy project={project} />
+        )}
           </div>
-          <div>
-            <dt>Stack</dt>
-            <dd>{project.tags.join(" · ")}</dd>
-          </div>
-          <div>
-            <dt>Scope</dt>
-            <dd>{project.description}</dd>
-          </div>
-        </dl>
-        {/* <p className="mono todo-note">
-          TODO / Add verified metrics and live links.
-        </p> */}
+        </div>
       </motion.div>
     </div>
+  );
+}
+
+function CaseStudyMeta({ project }: { project: Project }) {
+  const [role, type] = project.role.split("·").map((part) => part.trim());
+  return (
+    <div className="case-study-meta mono">
+      <span>{role}</span>
+      <span>{project.year}</span>
+      <span>{type || "Project"}</span>
+    </div>
+  );
+}
+
+function LegacyCaseStudy({ project }: { project: Project }) {
+  return (
+    <>
+      <p className="dialog-result">
+        <strong>Result</strong> {project.outcome}
+      </p>
+      <dl>
+        <div>
+          <dt>Role</dt>
+          <dd>{project.role}</dd>
+        </div>
+        <div>
+          <dt>Stack</dt>
+          <dd>{project.tags.join(" · ")}</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>{project.description}</dd>
+        </div>
+      </dl>
+    </>
+  );
+}
+
+function CaseStudyBody({
+  project,
+  nextProject,
+  openNext,
+  close,
+}: {
+  project: Project;
+  nextProject: Project | null;
+  openNext: () => void;
+  close: () => void;
+}) {
+  const caseStudy = project.caseStudy;
+  if (!caseStudy) return null;
+  const demoLink = caseStudy.links?.demo;
+  const sourceLink = caseStudy.links?.source;
+  const reducedMotion = useReducedMotion();
+  const animation = reducedMotion
+    ? undefined
+    : { opacity: 1, y: 0 };
+  const initial = reducedMotion ? undefined : { opacity: 0, y: 12 };
+
+  return (
+    <div className="case-study-body">
+      {caseStudy.confirmed.story && (
+        <motion.section
+          id="case-story"
+          className="case-study-section case-study-story"
+          initial={initial}
+          whileInView={animation}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.45 }}
+        >
+          <p className="mono case-study-label">01 / Story</p>
+          <p className="case-study-story-text">{caseStudy.story}</p>
+        </motion.section>
+      )}
+
+      {caseStudy.confirmed.problem && (
+        <CaseStudySection id="case-problem" label="02 / Problem">
+          <p>{caseStudy.problem.context}</p>
+          <div className="problem-contrast">
+            <div>
+              <span className="mono">Before</span>
+              <p>{caseStudy.problem.before}</p>
+            </div>
+            <div>
+              <span className="mono">After</span>
+              <p>{caseStudy.problem.after}</p>
+            </div>
+          </div>
+        </CaseStudySection>
+      )}
+
+      {caseStudy.confirmed.challenges && caseStudy.challenges.length > 0 && (
+        <CaseStudySection id="case-decisions" label="03 / Decisions">
+          <div className="challenge-list">
+            {caseStudy.challenges.map((challenge, index) => (
+              <motion.article
+                className="challenge-card"
+                key={challenge.title}
+                initial={initial}
+                whileInView={animation}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.35, delay: reducedMotion ? 0 : index * 0.08 }}
+              >
+                {challenge.tag && (
+                  <span className="mono challenge-tag">{challenge.tag}</span>
+                )}
+                <h3>{challenge.title}</h3>
+                <p>
+                  <strong>Decision</strong> {challenge.decision}
+                </p>
+                <p>
+                  <strong>Trade-off</strong> {challenge.tradeoff}
+                </p>
+              </motion.article>
+            ))}
+          </div>
+        </CaseStudySection>
+      )}
+
+      {caseStudy.confirmed.architecture &&
+        caseStudy.architecture.nodes.length > 0 && (
+          <CaseStudySection id="case-architecture" label="04 / How it works">
+            <div className="architecture-diagram">
+              {caseStudy.architecture.nodes.map((node, index) => (
+                <div className="architecture-node" key={node.id}>
+                  <span className="mono">{node.label}</span>
+                  <p>{node.caption}</p>
+                  {index < caseStudy.architecture.nodes.length - 1 && (
+                    <span className="architecture-link" aria-hidden="true" />
+                  )}
+                </div>
+              ))}
+            </div>
+            <p>{caseStudy.architecture.summary}</p>
+            <ol className="visually-hidden">
+              {caseStudy.architecture.nodes.map((node) => (
+                <li key={node.id}>
+                  {node.label}: {node.caption}
+                </li>
+              ))}
+            </ol>
+            <MiniPlanner />
+          </CaseStudySection>
+        )}
+
+      {caseStudy.confirmed.security &&
+        caseStudy.security &&
+        caseStudy.security.items.length > 0 && (
+          <CaseStudySection id="case-security" label="05 / Security & data" className="security-note">
+            <DecryptNote items={caseStudy.security.items} reducedMotion={Boolean(reducedMotion)} />
+          </CaseStudySection>
+        )}
+
+      {caseStudy.next && (
+        <CaseStudySection label="06 / Next">
+          <p>{caseStudy.next}</p>
+        </CaseStudySection>
+      )}
+
+      <div className="case-study-closing">
+        <p>Thanks for taking the time to look through this case study.</p>
+        <div className="case-study-closing-actions">
+          <button
+            className="button button-primary"
+            onClick={() => {
+              close();
+              requestAnimationFrame(() =>
+                document.querySelector("#contact")?.scrollIntoView({
+                  behavior: reducedMotion ? "auto" : "smooth",
+                }),
+              );
+            }}
+          >
+            Get in touch <ArrowUpRight size={15} />
+          </button>
+          {nextProject && (
+            <button className="button button-secondary" onClick={openNext}>
+              Next project <ArrowUpRight size={15} />
+            </button>
+          )}
+        </div>
+      </div>
+      {(demoLink || sourceLink) && (
+        <div className="case-study-actions">
+          {demoLink && (
+            <a
+              className="button button-primary"
+              href={demoLink}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View live demo <ArrowUpRight size={15} />
+            </a>
+          )}
+          {sourceLink && (
+            <a
+              className="button button-secondary"
+              href={sourceLink}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View source code <ArrowUpRight size={15} />
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CaseStudyChapterHeader({
+  scrollRootRef,
+}: {
+  scrollRootRef: { current: HTMLDivElement | null };
+}) {
+  const reducedMotion = useReducedMotion();
+  const [activeChapter, setActiveChapter] = useState("01 / Story");
+  const activeIndex = caseStudyChapters.findIndex(
+    (chapter) => chapter.label === activeChapter,
+  );
+
+  useEffect(() => {
+    const root = scrollRootRef.current;
+    if (!root) return;
+    const sections = caseStudyChapters
+      .map((chapter) => root.querySelector<HTMLElement>(`#${chapter.id}`))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          const chapter = caseStudyChapters.find(
+            (item) => item.id === visible.target.id,
+          );
+          if (chapter) setActiveChapter(chapter.label);
+        }
+      },
+      { root, threshold: [0.2, 0.55], rootMargin: "-12% 0px -55% 0px" },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [scrollRootRef]);
+
+  return (
+    <nav className="chapter-rail" aria-label="Case study chapters">
+      <div className="chapter-rail-track" aria-hidden="true">
+        <span
+          className="chapter-rail-fill"
+          style={{
+            width: `${((activeIndex + 1) / caseStudyChapters.length) * 100}%`,
+          }}
+        />
+      </div>
+      <div className="chapter-tabs">
+        {caseStudyChapters.map((chapter) => (
+          <button
+            className={activeChapter === chapter.label ? "is-active" : ""}
+            key={chapter.id}
+            type="button"
+            onClick={() =>
+              (() => {
+                const root = scrollRootRef.current;
+                const target = root?.querySelector<HTMLElement>(`#${chapter.id}`);
+                if (!root || !target) return;
+                const rootTop = root.getBoundingClientRect().top;
+                const targetTop = target.getBoundingClientRect().top;
+                root.scrollTo({
+                  top: root.scrollTop + targetTop - rootTop,
+                  behavior: reducedMotion ? "auto" : "smooth",
+                });
+              })()
+            }
+          >
+            {chapter.label}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+function MiniPlanner() {
+  const furniture = [
+    { name: "Bed", price: 22000 },
+    { name: "Wardrobe", price: 16000 },
+    { name: "Shelf", price: 9000 },
+    { name: "Center Table", price: 8000 },
+  ];
+  const [selected, setSelected] = useState<string[]>([]);
+  const budget = 50000;
+  const total = furniture
+    .filter((item) => selected.includes(item.name))
+    .reduce((sum, item) => sum + item.price, 0);
+  const overBudget = total > budget;
+
+  return (
+    <div className="mini-planner">
+      <div className="mini-planner-heading">
+        <div>
+          <span className="mono">TRY IT / SAMPLE DATA</span>
+          <p>Try it: this is the cost panel from the real app.</p>
+        </div>
+        <span className="mono">Budget ₱{budget.toLocaleString()}</span>
+      </div>
+      <div className="planner-chips">
+        {furniture.map((item) => {
+          const isSelected = selected.includes(item.name);
+          return (
+            <button
+              type="button"
+              className={isSelected ? "is-selected" : ""}
+              aria-pressed={isSelected}
+              key={item.name}
+              onClick={() =>
+                setSelected((current) =>
+                  isSelected
+                    ? current.filter((name) => name !== item.name)
+                    : [...current, item.name],
+                )
+              }
+            >
+              {item.name}
+              <span className="mono">₱{item.price.toLocaleString()}</span>
+            </button>
+          );
+        })}
+      </div>
+      <motion.div
+        className={`planner-total ${overBudget ? "is-over" : ""}`}
+        key={total}
+        initial={{ opacity: 0.5, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        aria-live="polite"
+      >
+        <span>Total</span>
+        <strong>₱{total.toLocaleString()}</strong>
+      </motion.div>
+      {overBudget && (
+        <p className="planner-status">
+          Over budget by ₱{(total - budget).toLocaleString()}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function DecryptNote({
+  items,
+  reducedMotion,
+}: {
+  items: { label: string; value: string }[];
+  reducedMotion: boolean;
+}) {
+  const [revealed, setRevealed] = useState(reducedMotion);
+  const holdTimer = useRef<number | null>(null);
+  const reveal = () => setRevealed(true);
+  const startHold = () => {
+    if (reducedMotion) return;
+    holdTimer.current = window.setTimeout(reveal, 1000);
+  };
+  const endHold = () => {
+    if (holdTimer.current !== null) window.clearTimeout(holdTimer.current);
+  };
+
+  useEffect(() => {
+    if (reducedMotion) setRevealed(true);
+    return () => endHold();
+  }, [reducedMotion]);
+
+  return (
+    <div className={`decrypt-note ${revealed ? "is-revealed" : ""}`}>
+      <div className="decrypt-heading">
+        <span className="mono">HOLD TO REVEAL</span>
+        {!revealed && (
+          <button
+            type="button"
+            className="button button-secondary"
+            onPointerDown={startHold}
+            onPointerUp={endHold}
+            onPointerLeave={endHold}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                reveal();
+              }
+            }}
+          >
+            Hold to reveal
+          </button>
+        )}
+      </div>
+      <dl className="security-list">
+        {items.map((item) => (
+          <div key={item.label}>
+            <dt className="mono">{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+function CaseStudySection({
+  label,
+  children,
+  className = "",
+  id,
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <section id={id} className={`case-study-section ${className}`}>
+      <p className="mono case-study-label">{label}</p>
+      <div className="case-study-section-content">{children}</div>
+    </section>
   );
 }
 
@@ -633,6 +1110,19 @@ export default function App() {
     return () => removeEventListener("keydown", shortcut);
   }, []);
   const filteredProjects = niche === "security" ? [] : portfolio.projects;
+  const selectedProjectIndex = selectedProject
+    ? filteredProjects.findIndex((project) => project.title === selectedProject.title)
+    : -1;
+  const nextProject =
+    selectedProjectIndex >= 0
+      ? filteredProjects[selectedProjectIndex + 1] ?? null
+      : null;
+  const closeCaseStudy = useCallback(() => {
+    setSelectedProject(null);
+  }, []);
+  const openNextProject = useCallback(() => {
+    if (nextProject) setSelectedProject(nextProject);
+  }, [nextProject]);
   const submit = async (data: FormValues) => {
     await new Promise((resolve) => setTimeout(resolve, 350));
     window.location.href = `mailto:${portfolio.email}?subject=Portfolio inquiry from ${encodeURIComponent(data.name)}&body=${encodeURIComponent(`${data.message}\n\nReply to: ${data.email}`)}`;
@@ -661,6 +1151,9 @@ export default function App() {
                 filteredProjects.map((project, index) => (
                   <motion.button
                     type="button"
+                    onMouseDown={(event) => {
+                      if (event.button === 0) event.preventDefault();
+                    }}
                     onClick={() => setSelectedProject(project)}
                     className={`work-card ${index === 0 ? "spotlight-card" : ""}`}
                     key={project.title}
@@ -956,7 +1449,9 @@ export default function App() {
       </footer>
       <CaseDialog
         project={selectedProject}
-        close={() => setSelectedProject(null)}
+        close={closeCaseStudy}
+        nextProject={nextProject}
+        openNext={openNextProject}
       />
       <Toaster richColors />
     </>
