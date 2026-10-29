@@ -799,14 +799,6 @@ function ExperienceSection() {
   }, []);
 
   useEffect(() => {
-    filterButtonRefs.current[filter]?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-  }, [filter]);
-
-  useEffect(() => {
     const update = () => {
       const node = timelineRef.current;
       if (!node) return;
@@ -854,6 +846,11 @@ function ExperienceSection() {
   const changeFilter = (value: "all" | ExperienceNiche) => {
     setFilter(value);
     setOpenRole(null);
+    filterButtonRefs.current[value]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
     const params = new URLSearchParams(window.location.search);
     if (value === "all") params.delete("exp");
     else params.set("exp", value);
