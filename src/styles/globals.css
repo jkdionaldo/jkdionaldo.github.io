@@ -932,6 +932,7 @@ button {
   }
 }
 .proof-section {
+  overflow-x: clip;
 }
 .proof-layout {
   display: grid;
@@ -1140,6 +1141,7 @@ button {
   display: grid;
   gap: 5px;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .experience-date {
   color: var(--foreground);
@@ -1549,6 +1551,7 @@ label > span {
   .proof-layout {
     grid-template-columns: 1fr;
     gap: 42px;
+    width: min(100% - 32px, 1000px);
   }
   .proof-intro {
     position: static;
@@ -1566,12 +1569,42 @@ label > span {
   .proof-summary strong {
     font-size: 26px;
   }
+  .proof-summary span {
+    font-size: 9px;
+    line-height: 1.3;
+  }
   .experience-filter {
     margin-inline: -16px;
     padding-inline: 16px;
   }
   .experience-timeline {
     padding-left: 24px;
+    width: 100%;
+    overflow: visible;
+  }
+  .experience-row-button {
+    min-width: 0;
+    gap: 8px;
+  }
+  .experience-row-content strong {
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  .experience-org {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .experience-date {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .experience-date small {
+    display: block;
+    margin: 2px 0 0;
+  }
+  .experience-details {
+    padding-right: 0;
+    font-size: 13px;
   }
   .contact-grid {
     gap: 50px;
@@ -2325,6 +2358,24 @@ label > span {
   }
   .container-shell {
     width: min(100% - 32px, 1000px);
+  }
+}
+@media (max-width: 380px) {
+  .proof-summary {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .proof-summary div {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .proof-summary strong {
+    font-size: 24px;
+  }
+  .proof-subheading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
   }
 }
 @media (forced-colors: active), (prefers-contrast: more) {
