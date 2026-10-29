@@ -126,11 +126,20 @@ The `04 / Proof & Experience` section uses typed records from
 desktop and static on mobile. Proof entries are separate cards; roles are an
 ordered timeline with ISO dates formatted through `Intl.DateTimeFormat`,
 computed durations, niche filtering via `?exp=`, and one expandable row at a
-time. Add details or a project identifier only when the source data supports
+time. The accent progress line is measured against each dot's actual center,
+so a marker fills exactly when the line reaches it rather than at an
+index-based fraction of the full timeline. Add details or a project identifier only when the source data supports
 an expand control; roles without details remain static. Add new competition
 results to `proofEntries` and new roles to `experienceRoles`, including a
 TODO for any missing organization, current-status, event mapping, or niche
 confirmation.
+
+On mobile, the section uses a single `minmax(0, 1fr)` column with 16px
+horizontal padding, `min-width: 0` on layout children, and wrapping metadata.
+The filter is its own full-width horizontal scroller with non-wrapping chips,
+scroll snapping, and an edge fade; it must not widen the page. Proof cards
+collapse to one compact column with contained effect layers, while the
+timeline keeps its rail inside the container and indents rows from it.
 
 The About portrait uses `AboutPortrait` with a 4:5 frame, a 1px border, and
 data-driven focal points. The current focal values are 55% x / 80% y on

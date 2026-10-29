@@ -767,8 +767,10 @@ function ExperienceSection() {
   const [filter, setFilter] = useState<"all" | ExperienceNiche>("all");
   const [openRole, setOpenRole] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<string | null>(null);
+  const filterButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const timelineRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
+  const [reachedRoles, setReachedRoles] = useState<string[]>([]);
   const reducedMotion = useReducedMotion();
   const visibleRoles = filter === "all"
     ? experienceRoles
@@ -797,13 +799,40 @@ function ExperienceSection() {
   }, []);
 
   useEffect(() => {
+    filterButtonRefs.current[filter]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [filter]);
+
+  useEffect(() => {
     const update = () => {
       const node = timelineRef.current;
       if (!node) return;
       const rect = node.getBoundingClientRect();
       const viewport = window.innerHeight;
-      setProgress(Math.min(1, Math.max(0, (viewport * 0.72 - rect.top) / rect.height)));
+      const nextProgress = Math.min(1, Math.max(0, (viewport * 0.72 - rect.top) / rect.height));
+      setProgress(nextProgress);
       const rows = Array.from(node.querySelectorAll<HTMLElement>(".experience-row"));
+      const dots = Array.from(node.querySelectorAll<HTMLElement>(".timeline-dot"));
+      const progressEnd = rect.top + nextProgress * rect.height;
+      const nextReachedRoles = reducedMotion
+        ? visibleRoles.map((role) => role.id)
+        : rows
+            .map((row, index) => {
+              const dot = dots[index];
+              if (!dot) return null;
+              const dotCenter = dot.getBoundingClientRect().top + dot.offsetHeight / 2;
+              return dotCenter <= progressEnd ? row.dataset.role ?? null : null;
+            })
+            .filter((roleId): roleId is string => Boolean(roleId));
+      setReachedRoles((current) => (
+        current.length === nextReachedRoles.length &&
+        current.every((roleId, index) => roleId === nextReachedRoles[index])
+          ? current
+          : nextReachedRoles
+      ));
       const center = viewport / 2;
       const nearest = rows
         .map((row) => ({ row, distance: Math.abs(row.getBoundingClientRect().top + row.offsetHeight / 2 - center) }))
@@ -820,7 +849,7 @@ function ExperienceSection() {
       removeEventListener("scroll", scroll);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [visibleRoles.length]);
+  }, [reducedMotion, visibleRoles]);
 
   const changeFilter = (value: "all" | ExperienceNiche) => {
     setFilter(value);
@@ -855,12 +884,17 @@ function ExperienceSection() {
           {availableFilters.map((item) => {
             const count = item.value === "all"
               ? experienceRoles.length
-              : experienceRoles.filter((role) => role.niche === item.value).length;
+              : item.value === "cybersecurity"
+                ? proofEntries.length
+                : experienceRoles.filter((role) => role.niche === item.value).length;
             return (
               <button
                 type="button"
                 key={item.value}
                 className={filter === item.value ? "is-selected" : ""}
+                ref={(element) => {
+                  filterButtonRefs.current[item.value] = element;
+                }}
                 onClick={() => changeFilter(item.value)}
                 aria-pressed={filter === item.value}
               >
@@ -913,7 +947,7 @@ function ExperienceSection() {
                       transition={{ duration: 0.3, delay: index * 0.04 }}
                     >
                       <span
-                        className={`timeline-dot${progress >= (index + 1) / visibleRoles.length ? " is-reached" : ""}`}
+                        className={`timeline-dot${reachedRoles.includes(role.id) ? " is-reached" : ""}`}
                         aria-hidden="true"
                       />
                       {expandable ? (
