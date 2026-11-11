@@ -50,6 +50,9 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+main:focus {
+  outline: none;
+}
 .app-shell {
   position: relative;
   isolation: isolate;
