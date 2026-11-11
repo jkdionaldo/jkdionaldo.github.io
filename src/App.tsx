@@ -44,6 +44,8 @@ import { StackWall } from "@/components/shared/StackWall";
 import { ProjectThumbnail } from "@/components/shared/ProjectThumbnail";
 import { AboutPortrait } from "@/components/shared/AboutPortrait";
 import { BlueprintBackground } from "@/components/shared/BlueprintBackground";
+import { Preloader } from "@/components/Preloader";
+import { useBootDone } from "@/hooks/useBootDone";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useTheme } from "@/hooks/useTheme";
 import "@/styles/globals.css";
@@ -381,6 +383,7 @@ function CommandPalette({ open, close }: { open: boolean; close: () => void }) {
 function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
+  const bootDone = useBootDone();
   const [active, setActive] = useState(true);
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -427,9 +430,9 @@ function Hero() {
       <div className="hero-wash" />
       <div className="container-shell hero-content">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
+          initial={false}
+          animate={bootDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <p className="mono status-line">
             <span>●</span> Available for Work
@@ -1501,10 +1504,11 @@ export default function App() {
   };
   return (
     <div className="app-shell">
+      <Preloader />
       <BlueprintBackground />
       <CommandPalette open={paletteOpen} close={() => setPaletteOpen(false)} />
       <Header openPalette={() => setPaletteOpen(true)} />
-      <main id="top">
+      <main id="top" tabIndex={-1}>
         <Hero />
         <Section id="work">
           <div className="container-shell">

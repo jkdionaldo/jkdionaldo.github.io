@@ -10,6 +10,38 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/images/main_picture/kevin.JPG" />
     <link rel="icon" href="/images/head_logo/transs-W.png" />
+    <style>
+      html[data-boot="active"],
+      html[data-boot="active"] body {
+        background: #0b1113;
+      }
+    </style>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var key = "jk-booted";
+        var stored = false;
+        try {
+          stored = sessionStorage.getItem(key) === "1";
+        } catch (_) {}
+        root.dataset.boot = stored ? "done" : "active";
+        if (!stored) {
+          var complete = function () {
+            root.dataset.boot = "done";
+            try {
+              sessionStorage.setItem(key, "1");
+            } catch (_) {}
+          };
+          window.setTimeout(complete, 4500);
+          document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") complete();
+          });
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            complete();
+          }
+        }
+      })();
+    </script>
     <title>Jan Kevin B. Dionaldo | Portfolio</title>
   </head>
   <body>

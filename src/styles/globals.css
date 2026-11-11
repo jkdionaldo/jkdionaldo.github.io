@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
 :root {
@@ -310,6 +309,31 @@ button {
 }
 .hero-content > div {
   max-width: 700px;
+  transition:
+    opacity 700ms ease-out,
+    transform 700ms ease-out;
+}
+html[data-boot="active"] .hero-content > div {
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+}
+html[data-boot="done"] .hero-content > div {
+  opacity: 1;
+  transform: translateY(0);
+}
+html[data-boot="done"] .hero-content .status-line {
+  transition-delay: 80ms;
+}
+html[data-boot="done"] .hero-content .hero-label,
+html[data-boot="done"] .hero-content .hero-title {
+  transition-delay: 160ms;
+}
+html[data-boot="done"] .hero-content .hero-copy {
+  transition-delay: 240ms;
+}
+html[data-boot="done"] .hero-content .hero-actions {
+  transition-delay: 320ms;
 }
 .status-line {
   color: var(--muted);
@@ -648,6 +672,115 @@ button {
   .work-card:hover .project-thumbnail-image,
   .work-card:hover .project-thumbnail-video {
     transform: none;
+  }
+}
+
+.boot-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  overflow: hidden;
+  background: #0b1113;
+  color: #b2c4c4;
+  font:
+    13px/1.6 "JetBrains Mono",
+    ui-monospace,
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+  clip-path: inset(0);
+  transition:
+    clip-path 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 300ms ease-out;
+}
+.boot-overlay.is-complete {
+  clip-path: inset(100% 0 0);
+}
+.boot-overlay.is-skip {
+  opacity: 0;
+}
+.boot-terminal {
+  position: absolute;
+  inset: auto clamp(16px, 5vw, 64px) 48px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 96px);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 100%);
+  text-align: left;
+}
+.boot-line {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.boot-timestamp {
+  color: #9ab0b0;
+}
+.boot-tag {
+  color: #4fd1c5;
+}
+.boot-message {
+  color: #b2c4c4;
+}
+.boot-skip {
+  position: absolute;
+  z-index: 1;
+  right: clamp(10px, 3vw, 32px);
+  bottom: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #9ab0b0;
+  font: inherit;
+  cursor: pointer;
+}
+.boot-cursor {
+  display: inline-block;
+  width: 0.65em;
+  height: 1em;
+  margin-left: 2px;
+  background: #b2c4c4;
+  vertical-align: -0.15em;
+  animation: boot-cursor-blink 500ms steps(2, jump-none) infinite;
+}
+@keyframes boot-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (min-width: 768px) {
+  .boot-overlay {
+    font-size: 14px;
+  }
+}
+@media (max-width: 479px) {
+  .boot-terminal {
+    bottom: 48px;
+  }
+  .boot-line {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-overlay {
+    transition: none;
+  }
+  .boot-cursor {
+    animation: none;
   }
 }
 .work-body {
@@ -1711,19 +1844,6 @@ label > span {
   height: 18px;
   flex: none;
   color: currentColor;
-}
-.hero-title {
-  animation: hero-type 0.6s ease-out both;
-}
-@keyframes hero-type {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 .site-header {
   transition:

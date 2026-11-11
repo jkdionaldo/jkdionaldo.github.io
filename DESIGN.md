@@ -6,6 +6,33 @@ The redesign uses a minimal technical-editorial direction: deep ink and a polish
 
 The portrait treatment is a masked, grayscale/teal duotone layer. It sits behind the hero copy at 10–15% visual weight, with a slow scan line, breathing scale, and a few-pixel cursor parallax. It pauses off-screen and becomes static for reduced-motion users. Replace [`images/main_picture/kevin.JPG`](./images/main_picture/kevin.JPG) by changing `photo` in [`src/data/portfolio.ts`](./src/data/portfolio.ts); keep explicit image dimensions to avoid layout shift.
 
+## About-me boot sequence
+
+The preloader in [`src/components/Preloader.tsx`](./src/components/Preloader.tsx)
+is a cosmetic interface layer. Its `t+0.000s`, lowercase nine-character tags,
+teal accent, progress feel, and typed prompt are decoration; they do not claim
+that a security check, audit, encryption, firewall, uptime check, or other
+system operation ran. The only real loading signal is
+[`src/hooks/useAssetGate.ts`](./src/hooks/useAssetGate.ts), which waits for
+fonts, the hero image, and `window.load`.
+
+The editable sequence is generated in
+[`src/data/bootSequence.ts`](./src/data/bootSequence.ts) from `portfolio`,
+`stack`, and `proofEntries`. Project mounts, the identity line, preferred-tool
+groups, education, and records therefore follow the source data. Keep the
+timestamp values monotonic, preserve the short `tag` values, and keep the
+prompt as the only typed event.
+
+The inline script in [`index.html`](./index.html) sets
+`html[data-boot="active"]` before React loads, or `done` for returning visits.
+[`src/hooks/useBootDone.ts`](./src/hooks/useBootDone.ts) reads the attribute on
+mount and observes changes, so the hero cannot depend on a one-time event.
+`finishBoot()` in [`src/lib/bootSession.ts`](./src/lib/bootSession.ts) is
+idempotent: it sets the durable state, writes the session flag, unlocks scroll,
+returns to the top, and focuses the main content. Reduced-motion users skip the
+overlay. To replay it, run
+`sessionStorage.removeItem("jk-booted")` and reload.
+
 ## Tokens, type, and layout
 
 Tokens are defined in [`src/styles/globals.css`](./src/styles/globals.css). The system uses Geist Variable for display/body and a system monospace stack for metadata; mono is only used for labels, dates, indices, tags, status, and small captions. The spacing rhythm is based on 4/8px increments. Desktop content uses a 12-column-ready max-width grid and mobile collapses to a 4-column-friendly single stream. Surfaces use 1px borders and 10px radii instead of heavy shadows.
